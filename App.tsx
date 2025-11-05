@@ -26,7 +26,7 @@ declare global {
 }
 
 const App: React.FC = () => {
-  const [view, setView] = useState<'user' | 'admin'>('user');
+  const [view, setView] = useState<'user' | 'admin'>(() => (localStorage.getItem('currentView') as 'user' | 'admin') || 'user');
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [siteContent, setSiteContent] = useState<SiteContent | null>(null);
@@ -36,6 +36,11 @@ const App: React.FC = () => {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [contactSubmissions, setContactSubmissions] = useState<ContactSubmission[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  const handleSetView = (newView: 'user' | 'admin') => {
+    localStorage.setItem('currentView', newView);
+    setView(newView);
+  };
 
   useEffect(() => {
     // Render icons whenever the view or data changes
@@ -145,7 +150,7 @@ const App: React.FC = () => {
   if (view === 'admin') {
     if (user) {
       return <AdminPanel 
-        setView={setView} 
+        setView={handleSetView} 
         siteContent={siteContent} 
         menuItems={menuItems} 
         photos={photos} 
@@ -154,7 +159,7 @@ const App: React.FC = () => {
         contactSubmissions={contactSubmissions}
       />;
     }
-    return <Login setView={setView} />;
+    return <Login setView={handleSetView} />;
   }
 
   return (
@@ -171,7 +176,7 @@ const App: React.FC = () => {
             <Location content={siteContent.location} />
             <Contact content={siteContent.contact} />
           </main>
-          <Footer setView={setView} />
+          <Footer setView={handleSetView} />
         </>
       ) : (
         <div className="flex items-center justify-center min-h-screen">

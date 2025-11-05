@@ -1,23 +1,22 @@
-export interface MenuCategory {
+// Fix: Create the content for types.ts to define the data structures used in the application.
+export interface Photo {
   id: string;
-  name: string;
+  url: string;
+  alt: string;
 }
 
 export interface MenuItem {
-  id:string;
+  id: string;
   name: string;
   description: string;
   price: number;
   category: string;
   imageUrl?: string;
-  storagePath?: string;
 }
 
-export interface Photo {
-  id: string;
-  url: string;
-  alt: string;
-  storagePath?: string;
+export interface MenuCategory {
+    id: string;
+    name: string;
 }
 
 export interface Reservation {
@@ -28,10 +27,7 @@ export interface Reservation {
     date: string;
     time: string;
     guests: number;
-    submittedAt: {
-        seconds: number;
-        nanoseconds: number;
-    };
+    submittedAt: any; // Firestore ServerTimestamp
 }
 
 export interface ContactSubmission {
@@ -39,10 +35,7 @@ export interface ContactSubmission {
     name: string;
     email: string;
     message: string;
-    submittedAt: {
-        seconds: number;
-        nanoseconds: number;
-    };
+    submittedAt: any; // Firestore ServerTimestamp
 }
 
 export interface SiteContent {
@@ -54,10 +47,6 @@ export interface SiteContent {
   about: {
     title: string;
     paragraph: string;
-  };
-  menu: {
-    title: string;
-    description: string;
   };
   gallery: {
     title: string;
