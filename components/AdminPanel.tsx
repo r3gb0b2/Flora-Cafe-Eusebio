@@ -87,7 +87,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     if (window.lucide) {
       window.lucide.createIcons();
     }
-  }, [activeTab, isSidebarOpen]);
+  }, [activeTab, isSidebarOpen, reservations]);
   
   const handleContentChange = (section: keyof SiteContent, field: string, value: string) => {
     setSiteContent(prev => {
@@ -426,37 +426,47 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
              return (
                 <div>
                     <h2 className="text-2xl font-bold mb-4">Gerenciar Reservas</h2>
-                    <div className="bg-white shadow rounded-lg overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Data/Hora</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pessoas</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {reservations.map(r => (
-                                    <tr key={r.id}>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(r.status)}`}>
-                                                {r.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{new Date(r.date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})} às {r.time}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{r.name}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-center">{String(r.guests)}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                            <button onClick={() => handleReservationDetails(r)} className="text-indigo-600 hover:text-indigo-900">Detalhes</button>
-                                            {r.status === 'Pendente' && <button onClick={() => handleReservationStatusChange(r.id, 'Confirmada')} className="text-green-600 hover:text-green-900">Confirmar</button>}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {reservations.map(r => (
+                            <div key={r.id} className="bg-white rounded-lg shadow-md p-5 flex flex-col justify-between">
+                                <div>
+                                    <div className="flex justify-between items-start mb-3">
+                                        <p className="font-bold text-lg text-brand-brown">{r.name}</p>
+                                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(r.status)}`}>
+                                            {r.status}
+                                        </span>
+                                    </div>
+                                    <div className="text-sm text-gray-600 space-y-2">
+                                        <p className="flex items-center">
+                                            <i data-lucide="calendar" className="w-4 h-4 mr-2 text-gray-400"></i>
+                                            {new Date(r.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
+                                        </p>
+                                        <p className="flex items-center">
+                                            <i data-lucide="clock" className="w-4 h-4 mr-2 text-gray-400"></i>
+                                            {r.time}
+                                        </p>
+                                        <p className="flex items-center">
+                                            <i data-lucide="users" className="w-4 h-4 mr-2 text-gray-400"></i>
+                                            {String(r.guests)} {Number(r.guests) > 1 ? 'pessoas' : 'pessoa'}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="mt-4 pt-4 border-t border-gray-200 flex items-center justify-end space-x-2">
+                                    <button onClick={() => handleReservationDetails(r)} className="text-sm text-indigo-600 hover:text-indigo-900 font-medium">Detalhes</button>
+                                    {r.status === 'Pendente' && (
+                                        <button onClick={() => handleReservationStatusChange(r.id, 'Confirmada')} className="px-3 py-1 bg-green-600 text-white rounded-md text-sm hover:bg-green-700">
+                                            Confirmar
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
                     </div>
+                    {reservations.length === 0 && (
+                        <div className="bg-white rounded-lg shadow-md p-8 text-center text-gray-500">
+                            <p>Nenhuma reserva encontrada.</p>
+                        </div>
+                    )}
                 </div>
             );
          case 'contatos':
