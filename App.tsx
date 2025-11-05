@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Photo } from './types';
 import Header from './components/Header';
@@ -11,6 +10,7 @@ import Location from './components/Location';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import AdminPanel from './components/AdminPanel';
+import { db } from './firebase';
 
 // Fix: Add type definition for window.lucide to solve TypeScript error.
 declare global {
@@ -25,14 +25,8 @@ type View = 'user' | 'admin';
 
 const App: React.FC = () => {
   const [view, setView] = useState<View>('user');
-  const [photos, setPhotos] = useState<Photo[]>([
-    { id: 1, src: 'https://picsum.photos/seed/coffee1/800/600', alt: 'Interior of the coffee shop' },
-    { id: 2, src: 'https://picsum.photos/seed/coffee2/800/600', alt: 'A freshly brewed latte' },
-    { id: 3, src: 'https://picsum.photos/seed/coffee3/800/600', alt: 'Cozy seating area' },
-    { id: 4, src: 'https://picsum.photos/seed/coffee4/800/600', alt: 'Close-up of a croissant' },
-    { id: 5, src: 'https://picsum.photos/seed/coffee5/800/600', alt: 'Barista preparing coffee' },
-    { id: 6, src: 'https://picsum.photos/seed/coffee6/800/600', alt: 'Outdoor patio seating' },
-  ]);
+  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // This hook is used to re-trigger lucide icons when the view changes
@@ -40,21 +34,24 @@ const App: React.FC = () => {
       window.lucide.createIcons();
     }
   }, [view, photos]);
-
-  const addPhoto = (newPhotoSrc: string, newPhotoAlt: string) => {
-    setPhotos(prevPhotos => [
-      ...prevPhotos,
-      {
-        id: Date.now(),
-        src: newPhotoSrc,
-        alt: newPhotoAlt,
-      },
-    ]);
-  };
   
-  const deletePhoto = (id: number) => {
-    setPhotos(prevPhotos => prevPhotos.filter(photo => photo.id !== id));
-  };
+  useEffect(() => {
+    // Listen for real-time updates from the 'photos' collection in Firestore
+    const unsubscribe = db.collection('photos').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+      const photosData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Photo[];
+      setPhotos(photosData);
+      setLoading(false);
+    }, (error) => {
+      console.error("Error fetching photos from Firestore:", error);
+      setLoading(false);
+    });
+
+    // Clean up the listener when the component unmounts
+    return () => unsubscribe();
+  }, []);
 
 
   return (
@@ -66,7 +63,7 @@ const App: React.FC = () => {
             <Hero />
             <About />
             <Menu />
-            <Gallery photos={photos} />
+            <Gallery photos={photos} isLoading={loading} />
             <Reservations />
             <Location />
             <Contact />
@@ -76,8 +73,6 @@ const App: React.FC = () => {
       ) : (
         <AdminPanel 
           photos={photos} 
-          addPhoto={addPhoto} 
-          deletePhoto={deletePhoto}
           setView={setView} 
         />
       )}

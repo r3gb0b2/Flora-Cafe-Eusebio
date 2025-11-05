@@ -1,18 +1,74 @@
-
 import React, { useState } from 'react';
 import { Photo } from '../types';
+import { db, storage } from '../firebase';
+import firebase from 'firebase/compat/app';
 
 interface AdminPanelProps {
   photos: Photo[];
-  addPhoto: (src: string, alt: string) => void;
-  deletePhoto: (id: number) => void;
   setView: (view: 'user' | 'admin') => void;
 }
 
-const AdminPanel: React.FC<AdminPanelProps> = ({ photos, addPhoto, deletePhoto, setView }) => {
+const AdminPanel: React.FC<AdminPanelProps> = ({ photos, setView }) => {
   const [newPhotoAlt, setNewPhotoAlt] = useState('');
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  const clearMessages = () => {
+    setError('');
+    setSuccess('');
+  };
+
+  const addPhoto = async (file: File, alt: string) => {
+    if (!file) return;
+
+    clearMessages();
+    setUploading(true);
+    
+    try {
+      const fileName = `${Date.now()}-${file.name}`;
+      const storageRef = storage.ref(`gallery/${fileName}`);
+      await storageRef.put(file);
+      const downloadURL = await storageRef.getDownloadURL();
+
+      await db.collection('photos').add({
+        src: downloadURL,
+        alt: alt || 'Nova foto da cafeteria',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+      
+      setSuccess('Foto adicionada com sucesso!');
+      setNewPhotoAlt('');
+    } catch (err) {
+      console.error("Error adding photo:", err);
+      setError('Ocorreu um erro ao adicionar a foto.');
+    } finally {
+      setUploading(false);
+      setTimeout(clearMessages, 3000);
+    }
+  };
+
+  const deletePhoto = async (photo: Photo) => {
+    if (!window.confirm("Tem certeza que deseja deletar esta foto?")) return;
+    
+    clearMessages();
+    try {
+      // Delete from Firestore
+      await db.collection('photos').doc(photo.id).delete();
+      
+      // Delete from Storage
+      const storageRef = storage.refFromURL(photo.src);
+      await storageRef.delete();
+
+      setSuccess('Foto deletada com sucesso!');
+    } catch (err) {
+      console.error("Error deleting photo:", err);
+      setError('Ocorreu um erro ao deletar a foto.');
+    } finally {
+        setTimeout(clearMessages, 3000);
+    }
+  };
+
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -21,21 +77,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ photos, addPhoto, deletePhoto, 
         setError('Por favor, selecione um arquivo de imagem válido.');
         return;
       }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === 'string') {
-          addPhoto(reader.result, newPhotoAlt || 'Nova foto da cafeteria');
-          setNewPhotoAlt('');
-          e.target.value = ''; // Reset file input
-          setSuccess('Foto adicionada com sucesso!');
-          setError('');
-          setTimeout(() => setSuccess(''), 3000);
-        }
-      };
-      reader.onerror = () => {
-        setError('Ocorreu um erro ao ler o arquivo.');
-      };
-      reader.readAsDataURL(file);
+      addPhoto(file, newPhotoAlt);
+      e.target.value = ''; // Reset file input
     }
   };
 
@@ -51,12 +94,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ photos, addPhoto, deletePhoto, 
             <i data-lucide="arrow-left" className="w-4 h-4 mr-2"></i>
             Voltar ao Site
           </button>
-        </div>
-
-        <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded-md mb-6">
-          <p>
-            <strong>Atenção:</strong> As fotos são salvas apenas nesta sessão do navegador. Atualizar a página irá remover as imagens adicionadas.
-          </p>
         </div>
 
         <div className="mb-8">
@@ -82,9 +119,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ photos, addPhoto, deletePhoto, 
                 id="photoFile"
                 accept="image/*"
                 onChange={handleFileChange}
-                className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-accent file:text-white hover:file:bg-opacity-90"
+                disabled={uploading}
+                className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-accent file:text-white hover:file:bg-opacity-90 disabled:opacity-50"
               />
             </div>
+             {uploading && <div className="text-sm text-gray-600">Enviando foto, por favor aguarde...</div>}
           </div>
         </div>
 
@@ -97,7 +136,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ photos, addPhoto, deletePhoto, 
                   <img src={photo.src} alt={photo.alt} className="w-full h-40 object-cover rounded-md shadow-md" />
                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity duration-300 flex items-center justify-center">
                     <button
-                      onClick={() => deletePhoto(photo.id)}
+                      onClick={() => deletePhoto(photo)}
                       className="opacity-0 group-hover:opacity-100 bg-red-600 hover:bg-red-700 text-white p-2 rounded-full transition-opacity duration-300"
                       title="Deletar foto"
                     >
