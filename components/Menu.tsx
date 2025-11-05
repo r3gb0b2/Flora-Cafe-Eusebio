@@ -1,56 +1,42 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { MenuItem } from '../types';
 
 const menuItems: MenuItem[] = [
-  { name: 'Espresso', description: 'Um clássico shot de café intenso e aromático.', price: 'R$ 6,00', category: 'Cafés' },
-  { name: 'Cappuccino Italiano', description: 'Espresso, leite vaporizado e uma cremosa espuma de leite.', price: 'R$ 10,00', category: 'Cafés' },
-  { name: 'Latte', description: 'Espresso com uma generosa porção de leite vaporizado.', price: 'R$ 12,00', category: 'Cafés' },
-  { name: 'Mocha', description: 'Uma deliciosa mistura de espresso, leite e calda de chocolate.', price: 'R$ 14,00', category: 'Cafés' },
-  { name: 'Croissant de Amêndoas', description: 'Massa folhada crocante com recheio de creme de amêndoas.', price: 'R$ 15,00', category: 'Comidas' },
-  { name: 'Tosta de Abacate', description: 'Pão artesanal, abacate fresco, tomate cereja e um fio de azeite.', price: 'R$ 22,00', category: 'Comidas' },
-  { name: 'Pão de Queijo', description: 'Tradicional pão de queijo mineiro, quentinho e macio.', price: 'R$ 7,00', category: 'Comidas' },
-  { name: 'Bolo de Cenoura', description: 'Bolo fofinho de cenoura com cobertura de brigadeiro.', price: 'R$ 12,00', category: 'Comidas' },
-  { name: 'Cold Brew', description: 'Café extraído a frio por 18 horas, suave e refrescante.', price: 'R$ 13,00', category: 'Bebidas Geladas' },
-  { name: 'Frappuccino de Caramelo', description: 'Café, leite, gelo e calda de caramelo batidos e finalizados com chantilly.', price: 'R$ 18,00', category: 'Bebidas Geladas' },
-  { name: 'Chá Gelado da Casa', description: 'Infusão de hibisco com frutas vermelhas e um toque de limão.', price: 'R$ 9,00', category: 'Bebidas Geladas' },
+  { id: '1', name: 'Espresso', description: 'Café forte e encorpado.', price: 5.00, category: 'Cafés', imageUrl: '/placeholder-espresso.jpg' },
+  { id: '2', name: 'Cappuccino', description: 'Espresso, leite vaporizado e espuma de leite.', price: 8.00, category: 'Cafés', imageUrl: '/placeholder-cappuccino.jpg' },
+  { id: '3', name: 'Pão de Queijo', description: 'Tradicional pão de queijo mineiro.', price: 4.00, category: 'Salgados', imageUrl: '/placeholder-pao-de-queijo.jpg' },
+  { id: '4', name: 'Croissant', description: 'Massa folhada crocante e amanteigada.', price: 7.00, category: 'Salgados', imageUrl: '/placeholder-croissant.jpg' },
+  { id: '5', name: 'Bolo de Chocolate', description: 'Fatia generosa de bolo de chocolate com calda.', price: 10.00, category: 'Doces', imageUrl: '/placeholder-bolo.jpg' },
+  { id: '6', name: 'Suco de Laranja', description: 'Suco natural de laranja, feito na hora.', price: 7.00, category: 'Bebidas', imageUrl: '/placeholder-suco.jpg' },
 ];
 
+const MenuCard: React.FC<{ item: MenuItem }> = ({ item }) => (
+  <div className="bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
+    <img src={item.imageUrl} alt={item.name} className="w-full h-48 object-cover" />
+    <div className="p-6">
+      <h3 className="text-xl font-serif font-semibold text-brand-brown">{item.name}</h3>
+      <p className="text-gray-600 mt-2 h-12">{item.description}</p>
+      <div className="mt-4 flex justify-between items-center">
+        <span className="text-lg font-bold text-brand-accent">R$ {item.price.toFixed(2)}</span>
+        <span className="text-sm bg-brand-brown text-white px-2 py-1 rounded-full">{item.category}</span>
+      </div>
+    </div>
+  </div>
+);
+
+
 const Menu: React.FC = () => {
-  const [activeCategory, setActiveCategory] = useState<'Cafés' | 'Comidas' | 'Bebidas Geladas'>('Cafés');
-
-  const categories: ('Cafés' | 'Comidas' | 'Bebidas Geladas')[] = ['Cafés', 'Comidas', 'Bebidas Geladas'];
-
-  const filteredItems = menuItems.filter(item => item.category === activeCategory);
-
   return (
-    <section id="cardapio" className="py-16 md:py-24 bg-white">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl md:text-4xl font-serif font-bold text-center text-brand-brown mb-8">Nosso Cardápio</h2>
-        <div className="flex justify-center mb-8 border-b-2 border-gray-200">
-          {categories.map(category => (
-            <button
-              key={category}
-              onClick={() => setActiveCategory(category)}
-              className={`px-4 py-2 text-lg font-medium transition-colors duration-300 ${
-                activeCategory === category
-                  ? 'border-b-4 border-brand-accent text-brand-brown'
-                  : 'text-gray-500 hover:text-brand-brown'
-              }`}
-            >
-              {category}
-            </button>
-          ))}
+    <section id="cardapio" className="py-20 bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-serif font-bold text-brand-brown sm:text-4xl">Nosso Cardápio</h2>
+          <p className="mt-4 text-lg text-gray-600">Delícias preparadas com carinho para você.</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {filteredItems.map(item => (
-            <div key={item.name} className="flex flex-col">
-              <div className="flex justify-between items-baseline">
-                <h3 className="text-xl font-bold font-serif text-brand-brown">{item.name}</h3>
-                <p className="text-lg font-semibold text-brand-brown">{item.price}</p>
-              </div>
-              <p className="text-gray-600 mt-1">{item.description}</p>
-            </div>
+        <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {menuItems.map(item => (
+            <MenuCard key={item.id} item={item} />
           ))}
         </div>
       </div>

@@ -1,25 +1,25 @@
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/firestore';
-import 'firebase/compat/storage';
 
-// IMPORTANTE: Cole aqui a configuração do seu projeto Firebase!
-// Você pode encontrar isso nas configurações do seu projeto no console do Firebase.
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
+import { getAuth } from "firebase/auth";
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyDsi6VpfhLQW8UWgAp5c4TRV7vqOkDyauU",
-  authDomain: "stingressos-e0a5f.firebaseapp.com",
-  projectId: "stingressos-e0a5f",
-  storageBucket: "stingressos-e0a5f.firebasestorage.app",
-  messagingSenderId: "424186734009",
-  appId: "1:424186734009:web:c4f601ce043761cd784268",
-  measurementId: "G-M30E0D9TP2"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID",
+  measurementId: "YOUR_MEASUREMENT_ID"
 };
 
-// Inicializa o Firebase
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
+const auth = getAuth(app);
 
-const db = firebase.firestore();
-const storage = firebase.storage();
-
-export { db, storage };
+export { db, storage, auth };

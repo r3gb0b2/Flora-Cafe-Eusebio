@@ -1,12 +1,26 @@
-export interface Photo {
+
+export interface MenuItem {
   id: string;
-  src: string;
+  name: string;
+  description: string;
+  price: number;
+  category: 'Cafés' | 'Salgados' | 'Doces' | 'Bebidas';
+  imageUrl: string;
+}
+
+export interface GalleryImage {
+  id: string;
+  url: string;
   alt: string;
 }
 
-export interface MenuItem {
+export interface Reservation {
+  id: string;
   name: string;
-  description: string;
-  price: string;
-  category: 'Cafés' | 'Comidas' | 'Bebidas Geladas';
+  email: string;
+  phone: string;
+  date: string;
+  time: string;
+  guests: number;
+  status: 'pending' | 'confirmed' | 'cancelled';
 }

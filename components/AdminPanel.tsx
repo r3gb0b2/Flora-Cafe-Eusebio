@@ -1,156 +1,120 @@
+
 import React, { useState } from 'react';
-import { Photo } from '../types';
-import { db, storage } from '../firebase';
-import firebase from 'firebase/compat/app';
+import { GoogleGenAI } from '@google/genai';
+
+// Fix: Initialize GoogleGenAI with apiKey from process.env.API_KEY
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 interface AdminPanelProps {
-  photos: Photo[];
   setView: (view: 'user' | 'admin') => void;
 }
 
-const AdminPanel: React.FC<AdminPanelProps> = ({ photos, setView }) => {
-  const [newPhotoAlt, setNewPhotoAlt] = useState('');
-  const [uploading, setUploading] = useState(false);
+const AdminPanel: React.FC<AdminPanelProps> = ({ setView }) => {
+  const [itemName, setItemName] = useState('');
+  const [itemDescription, setItemDescription] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
-  const clearMessages = () => {
-    setError('');
-    setSuccess('');
-  };
-
-  const addPhoto = async (file: File, alt: string) => {
-    if (!file) return;
-
-    clearMessages();
-    setUploading(true);
-    
-    try {
-      const fileName = `${Date.now()}-${file.name}`;
-      const storageRef = storage.ref(`gallery/${fileName}`);
-      await storageRef.put(file);
-      const downloadURL = await storageRef.getDownloadURL();
-
-      await db.collection('photos').add({
-        src: downloadURL,
-        alt: alt || 'Nova foto da cafeteria',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      });
-      
-      setSuccess('Foto adicionada com sucesso!');
-      setNewPhotoAlt('');
-    } catch (err) {
-      console.error("Error adding photo:", err);
-      setError('Ocorreu um erro ao adicionar a foto.');
-    } finally {
-      setUploading(false);
-      setTimeout(clearMessages, 3000);
-    }
-  };
-
-  const deletePhoto = async (photo: Photo) => {
-    if (!window.confirm("Tem certeza que deseja deletar esta foto?")) return;
-    
-    clearMessages();
-    try {
-      // Delete from Firestore
-      await db.collection('photos').doc(photo.id).delete();
-      
-      // Delete from Storage
-      const storageRef = storage.refFromURL(photo.src);
-      await storageRef.delete();
-
-      setSuccess('Foto deletada com sucesso!');
-    } catch (err) {
-      console.error("Error deleting photo:", err);
-      setError('Ocorreu um erro ao deletar a foto.');
-    } finally {
-        setTimeout(clearMessages, 3000);
-    }
-  };
-
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (!file.type.startsWith('image/')) {
-        setError('Por favor, selecione um arquivo de imagem válido.');
+  const generateDescription = async () => {
+    if (!itemName) {
+        setError('Por favor, insira o nome do item.');
         return;
-      }
-      addPhoto(file, newPhotoAlt);
-      e.target.value = ''; // Reset file input
+    }
+    setIsLoading(true);
+    setError('');
+    setItemDescription('');
+
+    try {
+        const prompt = `Crie uma descrição curta e apetitosa para um item de cardápio de cafeteria chamado "${itemName}". A descrição deve ter no máximo 20 palavras e destacar o sabor e a qualidade.`;
+        
+        // Fix: Use ai.models.generateContent according to guidelines
+        const response = await ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: prompt,
+        });
+
+        // Fix: Use response.text to get the text output
+        const text = response.text;
+        
+        setItemDescription(text);
+
+    } catch (e) {
+        console.error(e);
+        setError('Ocorreu um erro ao gerar a descrição. Tente novamente.');
+    } finally {
+        setIsLoading(false);
     }
   };
+
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-xl p-6">
-        <div className="flex justify-between items-center mb-6 border-b pb-4">
-          <h1 className="text-2xl font-bold text-brand-brown font-serif">Painel Administrativo - Galeria de Fotos</h1>
-          <button
-            onClick={() => setView('user')}
-            className="bg-brand-accent hover:bg-opacity-90 text-white font-bold py-2 px-4 rounded-md transition duration-300 flex items-center"
-          >
-            <i data-lucide="arrow-left" className="w-4 h-4 mr-2"></i>
-            Voltar ao Site
-          </button>
-        </div>
-
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4 text-brand-brown">Adicionar Nova Foto</h2>
-          {error && <div className="bg-red-100 text-red-700 p-3 rounded-md mb-4">{error}</div>}
-          {success && <div className="bg-green-100 text-green-700 p-3 rounded-md mb-4">{success}</div>}
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="photoAlt" className="block text-sm font-medium text-gray-700">Descrição da Foto (Alt Text)</label>
-              <input
-                type="text"
-                id="photoAlt"
-                value={newPhotoAlt}
-                onChange={(e) => setNewPhotoAlt(e.target.value)}
-                placeholder="Ex: Mesa aconchegante perto da janela"
-                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand-accent focus:border-brand-accent"
-              />
+    <div className="bg-gray-100 min-h-screen">
+        <header className="bg-brand-brown shadow">
+            <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+                <h1 className="text-2xl font-bold text-white">Painel Administrativo</h1>
+                <button
+                    onClick={() => setView('user')}
+                    className="text-sm text-gray-300 hover:text-white transition-colors duration-300"
+                >
+                    Voltar ao Site
+                </button>
             </div>
-            <div>
-              <label htmlFor="photoFile" className="block text-sm font-medium text-gray-700">Arquivo da Imagem</label>
-              <input
-                type="file"
-                id="photoFile"
-                accept="image/*"
-                onChange={handleFileChange}
-                disabled={uploading}
-                className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-accent file:text-white hover:file:bg-opacity-90 disabled:opacity-50"
-              />
-            </div>
-             {uploading && <div className="text-sm text-gray-600">Enviando foto, por favor aguarde...</div>}
-          </div>
-        </div>
+        </header>
+        <main>
+            <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                <div className="px-4 py-6 sm:px-0">
+                    <div className="bg-white p-8 rounded-lg shadow-lg max-w-2xl mx-auto">
+                        <h2 className="text-2xl font-serif font-bold text-brand-brown mb-6">Gerador de Descrição de Cardápio com IA</h2>
+                        
+                        <div className="space-y-4">
+                            <div>
+                                <label htmlFor="itemName" className="block text-sm font-medium text-gray-700">Nome do Item</label>
+                                <input
+                                    type="text"
+                                    name="itemName"
+                                    id="itemName"
+                                    value={itemName}
+                                    onChange={(e) => setItemName(e.target.value)}
+                                    placeholder="Ex: Cappuccino Cremoso"
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-accent focus:ring-brand-accent sm:text-sm"
+                                />
+                            </div>
 
-        <div>
-          <h2 className="text-xl font-semibold mb-4 text-brand-brown">Fotos Atuais</h2>
-          {photos.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {photos.map(photo => (
-                <div key={photo.id} className="relative group">
-                  <img src={photo.src} alt={photo.alt} className="w-full h-40 object-cover rounded-md shadow-md" />
-                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity duration-300 flex items-center justify-center">
-                    <button
-                      onClick={() => deletePhoto(photo)}
-                      className="opacity-0 group-hover:opacity-100 bg-red-600 hover:bg-red-700 text-white p-2 rounded-full transition-opacity duration-300"
-                      title="Deletar foto"
-                    >
-                      <i data-lucide="trash-2" className="w-5 h-5"></i>
-                    </button>
-                  </div>
+                            <button
+                                onClick={generateDescription}
+                                disabled={isLoading}
+                                className="w-full bg-brand-accent hover:bg-opacity-90 text-white font-bold py-2 px-4 rounded-md transition duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
+                            >
+                                {isLoading ? (
+                                    <>
+                                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Gerando...
+                                    </>
+                                ) : 'Gerar Descrição'}
+                            </button>
+
+                            <div>
+                                <label htmlFor="itemDescription" className="block text-sm font-medium text-gray-700">Descrição Gerada</label>
+                                <textarea
+                                    id="itemDescription"
+                                    name="itemDescription"
+                                    rows={4}
+                                    value={itemDescription}
+                                    onChange={(e) => setItemDescription(e.target.value)}
+                                    placeholder="A descrição gerada pela IA aparecerá aqui..."
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-accent focus:ring-brand-accent sm:text-sm bg-gray-50"
+                                />
+                            </div>
+                        </div>
+
+                        {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
+                    </div>
                 </div>
-              ))}
             </div>
-          ) : (
-            <p className="text-center text-gray-500 py-8">Nenhuma foto na galeria.</p>
-          )}
-        </div>
-      </div>
+        </main>
     </div>
   );
 };
