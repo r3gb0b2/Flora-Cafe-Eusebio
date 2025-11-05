@@ -1,5 +1,7 @@
 {
   "name": "Flora Café Eusébio",
   "description": "A modern and elegant landing page for Flora Café Eusébio, featuring a menu, photo gallery, reservation form, location details, and an admin panel for photo uploads.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "geolocation"
+  ]
 }
