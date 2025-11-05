@@ -1,7 +1,7 @@
-// Fix: Define interfaces for data types used throughout the application.
+// types.ts
 export interface SiteContent {
-  hero: { title: string; subtitle: string; imageUrl: string; };
-  about: { title: string; paragraph: string; imageUrl: string; };
+  hero: { title: string; subtitle: string; imageUrl: string; storagePath?: string; };
+  about: { title: string; paragraph: string; imageUrl: string; storagePath?: string; };
   gallery: { title: string; };
   reservations: { title: string; paragraph: string; };
   location: { title: string; address: string; hours: string; mapUrl: string; };
@@ -12,6 +12,7 @@ export interface Photo {
   id: string;
   url: string;
   alt: string;
+  storagePath: string;
 }
 
 export interface MenuItem {
@@ -21,6 +22,7 @@ export interface MenuItem {
   price: number | string;
   category: string;
   imageUrl?: string;
+  storagePath?: string;
 }
 
 export interface MenuCategory {
@@ -37,7 +39,10 @@ export interface Reservation {
   time: string;
   guests: number | string;
   submittedAt: any; // Firestore Timestamp
-  status?: 'pending' | 'confirmed' | 'cancelled';
+  status: 'Pendente' | 'Confirmada' | 'Concluída' | 'Cancelada';
+  type: string;
+  notes?: string;
+  adminNotes?: string;
 }
 
 export interface ContactSubmission {
