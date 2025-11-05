@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { db, isFirebaseConfigured, auth } from './firebase';
-import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot, collection } from 'firebase/firestore';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { Photo, MenuItem, SiteContent } from './types';
+import { Photo, MenuItem, SiteContent, MenuCategory } from './types';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import About from './components/About';
@@ -32,6 +32,7 @@ const App: React.FC = () => {
   const [siteContent, setSiteContent] = useState<SiteContent | null>(null);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [photos, setPhotos] = useState<Photo[]>([]);
+  const [menuCategories, setMenuCategories] = useState<MenuCategory[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -39,7 +40,7 @@ const App: React.FC = () => {
     if (window.lucide) {
       window.lucide.createIcons();
     }
-  }, [view, siteContent, isLoading, user, photos, menuItems]);
+  }, [view, siteContent, isLoading, user, photos, menuItems, menuCategories]);
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
@@ -53,6 +54,7 @@ const App: React.FC = () => {
 
     const fetchData = async () => {
       try {
+        // Fetch site content once
         const contentDocRef = doc(db, 'siteContent', 'main');
         const contentSnap = await getDoc(contentDocRef);
         if (contentSnap.exists()) {
@@ -62,16 +64,20 @@ const App: React.FC = () => {
           setError("Conteúdo do site não encontrado. Configure o Firestore.");
         }
 
-        const menuUnsubscribe = onSnapshot(doc(db, 'menu', 'items'), (doc) => {
-          if (doc.exists()) {
-            setMenuItems(doc.data().items || []);
-          }
+        // Listen for real-time updates on collections
+        const menuUnsubscribe = onSnapshot(collection(db, 'menuItems'), (snapshot) => {
+          const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as MenuItem));
+          setMenuItems(items);
         });
         
-        const photosUnsubscribe = onSnapshot(doc(db, 'gallery', 'photos'), (doc) => {
-          if (doc.exists()) {
-            setPhotos(doc.data().photos || []);
-          }
+        const photosUnsubscribe = onSnapshot(collection(db, 'photos'), (snapshot) => {
+          const photoItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Photo));
+          setPhotos(photoItems);
+        });
+
+        const categoriesUnsubscribe = onSnapshot(collection(db, 'menuCategories'), (snapshot) => {
+          const cats = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as MenuCategory));
+          setMenuCategories(cats.sort((a, b) => a.name.localeCompare(b.name)));
         });
 
         setIsLoading(false);
@@ -79,6 +85,7 @@ const App: React.FC = () => {
         return () => {
           menuUnsubscribe();
           photosUnsubscribe();
+          categoriesUnsubscribe();
         };
 
       } catch (e) {
@@ -101,7 +108,6 @@ const App: React.FC = () => {
     return (
       <div className="flex items-center justify-center min-h-screen bg-brand-cream">
         <div className="text-center">
-            {/* Using a simple div for loader to avoid icon issues during load */}
             <div className="w-16 h-16 border-4 border-brand-accent border-t-transparent rounded-full animate-spin mx-auto"></div>
             <p className="text-brand-brown text-xl mt-4">Carregando...</p>
         </div>
@@ -122,7 +128,7 @@ const App: React.FC = () => {
 
   if (view === 'admin') {
     if (user) {
-      return <AdminPanel setView={setView} siteContent={siteContent} menuItems={menuItems} photos={photos} />;
+      return <AdminPanel setView={setView} siteContent={siteContent} menuItems={menuItems} photos={photos} menuCategories={menuCategories} />;
     }
     return <Login setView={setView} />;
   }
@@ -134,7 +140,6 @@ const App: React.FC = () => {
           <Header />
           <main>
             <Hero content={siteContent.hero} />
-            {/* FIX: Corrected a typo from 'site' to 'siteContent' to pass the correct prop. */}
             <About content={siteContent.about} />
             <Menu menuItems={menuItems} />
             <Gallery photos={photos} content={siteContent.gallery} isLoading={false} />

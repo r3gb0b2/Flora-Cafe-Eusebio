@@ -1,16 +1,23 @@
-export interface MenuItem {
+export interface MenuCategory {
   id: string;
+  name: string;
+}
+
+export interface MenuItem {
+  id:string;
   name: string;
   description: string;
   price: number;
   category: string;
   imageUrl?: string;
+  storagePath?: string;
 }
 
 export interface Photo {
   id: string;
   url: string;
   alt: string;
+  storagePath?: string;
 }
 
 export interface SiteContent {
