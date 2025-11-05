@@ -5,6 +5,7 @@ import { SiteContent, MenuItem, Photo, MenuCategory, Reservation, ContactSubmiss
 import { doc, updateDoc, collection, addDoc, deleteDoc, setDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { GoogleGenAI } from '@google/genai';
+import Dashboard from './Dashboard'; // Import the new Dashboard component
 
 // Props Interface
 interface AdminPanelProps {
@@ -17,7 +18,7 @@ interface AdminPanelProps {
   contactSubmissions: ContactSubmission[];
 }
 
-type AdminTab = 'geral' | 'cardapio' | 'categorias' | 'galeria' | 'reservas' | 'contatos';
+export type AdminTab = 'dashboard' | 'geral' | 'cardapio' | 'categorias' | 'galeria' | 'reservas' | 'contatos';
 
 // Helper function for file uploads
 const uploadFile = async (file: File, path: string): Promise<{ url: string, storagePath: string }> => {
@@ -50,7 +51,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     reservations,
     contactSubmissions,
 }) => {
-  const [activeTab, setActiveTab] = useState<AdminTab>(() => (localStorage.getItem('adminTab') as AdminTab) || 'geral');
+  const [activeTab, setActiveTab] = useState<AdminTab>(() => (localStorage.getItem('adminTab') as AdminTab) || 'dashboard');
   const [siteContent, setSiteContent] = useState<SiteContent | null>(initialSiteContent);
   const [isSaving, setIsSaving] = useState(false);
   
@@ -283,6 +284,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     if (!siteContent) return <p>Loading content...</p>;
 
     switch(activeTab) {
+        case 'dashboard':
+            return <Dashboard 
+                reservations={reservations} 
+                contactSubmissions={contactSubmissions} 
+                menuItems={menuItems} 
+                setActiveTab={setActiveTab} 
+            />;
         case 'geral':
             return (
                 <div className="space-y-8">
@@ -496,6 +504,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                 <h1 className="text-xl font-bold text-brand-brown">Admin Flora Café</h1>
             </div>
             <nav className="flex flex-col space-y-2">
+                <NavItem tab="dashboard" label="Dashboard" icon="layout-dashboard" />
                 <NavItem tab="geral" label="Conteúdo Geral" icon="file-text" />
                 <NavItem tab="cardapio" label="Cardápio" icon="book-open" />
                 <NavItem tab="categorias" label="Categorias" icon="list" />
