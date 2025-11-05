@@ -44,13 +44,8 @@
 </head>
   <body>
     <div id="root"></div>
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-storage-compat.js"></script>
+    <!-- The old Firebase compat scripts were removed as they conflict with the importmap method -->
     <script type="module" src="/index.tsx"></script>
-    <script>
-      lucide.createIcons();
-    </script>
+    <!-- The initial lucide.createIcons() call was removed. React will now handle this. -->
   </body>
 </html>

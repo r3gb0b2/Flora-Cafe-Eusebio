@@ -4,7 +4,6 @@ import { signOut } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { SiteContent, MenuItem, Photo } from '../types';
-import { createIcons, icons } from 'lucide';
 
 interface AdminPanelProps {
   setView: (view: 'user' | 'admin') => void;
@@ -18,9 +17,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ setView, siteContent: initialCo
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('general');
 
-  useEffect(() => {
-    createIcons({ icons });
-  });
+  // The redundant icon initialization was removed from here.
 
   const handleLogout = async () => {
     await signOut(auth);

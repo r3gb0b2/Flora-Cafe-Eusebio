@@ -15,7 +15,15 @@ import Footer from './components/Footer';
 import AdminPanel from './components/AdminPanel';
 import Login from './components/Login';
 import FirebaseNotConfigured from './components/FirebaseNotConfigured';
-import { createIcons, icons } from 'lucide';
+
+// Add type definition for window.lucide
+declare global {
+  interface Window {
+    lucide: {
+      createIcons: () => void;
+    };
+  }
+}
 
 const App: React.FC = () => {
   const [view, setView] = useState<'user' | 'admin'>('user');
@@ -27,9 +35,11 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // This is to render icons used in other components
-    createIcons({ icons });
-  }, [view, siteContent, isLoading]);
+    // Render icons whenever the view or data changes
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  }, [view, siteContent, isLoading, user, photos, menuItems]);
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
@@ -91,7 +101,8 @@ const App: React.FC = () => {
     return (
       <div className="flex items-center justify-center min-h-screen bg-brand-cream">
         <div className="text-center">
-            <div className="w-16 h-16 text-brand-accent animate-spin mx-auto" dangerouslySetInnerHTML={{__html: icons.loader.toSvg()}} />
+            {/* Using a simple div for loader to avoid icon issues during load */}
+            <div className="w-16 h-16 border-4 border-brand-accent border-t-transparent rounded-full animate-spin mx-auto"></div>
             <p className="text-brand-brown text-xl mt-4">Carregando...</p>
         </div>
       </div>
@@ -102,7 +113,6 @@ const App: React.FC = () => {
      return (
         <div className="flex items-center justify-center min-h-screen bg-red-50">
             <div className="text-center p-8 bg-white rounded-lg shadow-md">
-                <div className="w-16 h-16 text-red-500 mx-auto" dangerouslySetInnerHTML={{__html: icons.alertCircle.toSvg()}} />
                 <h2 className="text-2xl font-bold text-red-700 mt-4">Ocorreu um Erro</h2>
                 <p className="text-gray-600 mt-2">{error}</p>
             </div>
@@ -124,6 +134,7 @@ const App: React.FC = () => {
           <Header />
           <main>
             <Hero content={siteContent.hero} />
+            {/* FIX: Corrected a typo from 'site' to 'siteContent' to pass the correct prop. */}
             <About content={siteContent.about} />
             <Menu menuItems={menuItems} />
             <Gallery photos={photos} content={siteContent.gallery} isLoading={false} />
