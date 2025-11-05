@@ -79,6 +79,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   useEffect(() => {
     setSiteContent(initialSiteContent);
   }, [initialSiteContent]);
+
+  useEffect(() => {
+    // Re-render icons when tab changes
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  }, [activeTab]);
   
   const handleContentChange = (section: keyof SiteContent, field: string, value: string) => {
     setSiteContent(prev => {
