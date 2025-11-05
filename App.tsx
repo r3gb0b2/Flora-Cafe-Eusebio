@@ -15,6 +15,7 @@ import Footer from './components/Footer';
 import AdminPanel from './components/AdminPanel';
 import Login from './components/Login';
 import FirebaseNotConfigured from './components/FirebaseNotConfigured';
+import InstagramFeed from './components/InstagramFeed';
 
 // Add type definition for window.lucide
 declare global {
@@ -172,6 +173,7 @@ const App: React.FC = () => {
             <About content={siteContent.about} />
             <Menu menuItems={menuItems} />
             <Gallery photos={photos} content={siteContent.gallery} isLoading={false} />
+            {siteContent.instagram && <InstagramFeed content={siteContent.instagram} instagramUrl={siteContent.contact.instagramUrl} />}
             <Reservations content={siteContent.reservations} />
             <Location content={siteContent.location} />
             <Contact content={siteContent.contact} />

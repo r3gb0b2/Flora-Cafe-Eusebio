@@ -350,9 +350,29 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                         <button onClick={() => handleSaveContent('about')} disabled={isSaving} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50">{isSaving ? 'Salvando...' : 'Salvar Seção Sobre'}</button>
                     </div>
 
-                    {/* Contact & Location Section */}
+                    {/* Contact, Location & Instagram Section */}
                     <div className="bg-white p-6 rounded-lg shadow">
-                         <h3 className="text-xl font-bold mb-4">Contato e Localização</h3>
+                         <h3 className="text-xl font-bold mb-4">Contato, Localização e Instagram</h3>
+                         
+                         <div className="mb-6 border-b pb-6">
+                            <h4 className="text-lg font-semibold mb-2 text-brand-brown">Instagram</h4>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium">Título da Seção</label>
+                                    <input type="text" value={siteContent.instagram?.title || ''} onChange={e => handleContentChange('instagram', 'title', e.target.value)} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium">Nome de Usuário (ex: @usuario)</label>
+                                    <input type="text" value={siteContent.instagram?.username || ''} onChange={e => handleContentChange('instagram', 'username', e.target.value)} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium">Texto de Chamada (CTA)</label>
+                                    <textarea value={siteContent.instagram?.ctaText || ''} onChange={e => handleContentChange('instagram', 'ctaText', e.target.value)} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" rows={2}></textarea>
+                                </div>
+                            </div>
+                         </div>
+                         
+                         <h4 className="text-lg font-semibold mb-2 text-brand-brown">Contato e Endereço</h4>
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <input type="text" placeholder="Telefone" value={siteContent.contact.phone} onChange={e => handleContentChange('contact', 'phone', e.target.value)} className="block w-full rounded-md border-gray-300 shadow-sm" />
                             <input type="email" placeholder="Email" value={siteContent.contact.email} onChange={e => handleContentChange('contact', 'email', e.target.value)} className="block w-full rounded-md border-gray-300 shadow-sm" />
@@ -362,7 +382,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                             <input type="text" placeholder="Horário de Funcionamento" value={siteContent.location.hours} onChange={e => handleContentChange('location', 'hours', e.target.value)} className="md:col-span-2 block w-full rounded-md border-gray-300 shadow-sm" />
                             <textarea placeholder="Google Maps URL" value={siteContent.location.mapUrl} onChange={e => handleContentChange('location', 'mapUrl', e.target.value)} className="md:col-span-2 block w-full rounded-md border-gray-300 shadow-sm" rows={3}></textarea>
                          </div>
-                         <button onClick={() => { handleSaveContent('contact'); handleSaveContent('location'); }} disabled={isSaving} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50">{isSaving ? 'Salvando...' : 'Salvar Contato e Localização'}</button>
+                         <button onClick={async () => { 
+                             await handleSaveContent('contact'); 
+                             await handleSaveContent('location'); 
+                             await handleSaveContent('instagram'); 
+                         }} disabled={isSaving} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50">{isSaving ? 'Salvando...' : 'Salvar Informações'}</button>
                     </div>
                 </div>
             );

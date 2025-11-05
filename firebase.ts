@@ -34,6 +34,7 @@ const defaultContent: SiteContent = {
     reservations: { title: "Faça sua Reserva", paragraph: "Garanta seu lugar em nosso cantinho especial. Preencha o formulário abaixo." },
     location: { title: "Onde nos Encontrar", address: "Rua Exemplo, 123, Eusébio, CE", hours: "Segunda a Sábado, das 8h às 20h", mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3981.339218089633!2d-38.4907366852408!3d-3.732742997275463!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x7c74630f9a1f0a7%3A0x53c33f218205776!2sPra%C3%A7a%20do%20Polo%20de%20Lazer!5e0!3m2!1spt-BR!2sbr!4v1689882956281!5m2!1spt-BR!2sbr" },
     contact: { title: "Entre em Contato", paragraph: "Dúvidas, sugestões ou apenas um oi? Adoramos ouvir você.", phone: "(85) 91234-5678", email: "contato@floracafeeusebio.com", instagramUrl: "https://instagram.com", facebookUrl: "https://facebook.com" },
+    instagram: { title: "Siga-nos no Instagram", username: "@floracafe_eusebio", ctaText: "Acompanhe nossas novidades e delícias diárias em tempo real!" },
 };
 
 // Function to initialize default content if it doesn't exist
