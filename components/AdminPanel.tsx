@@ -74,6 +74,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
   const [adminNotes, setAdminNotes] = useState('');
   
+  // State for reservations pagination
+  const [reservationsCurrentPage, setReservationsCurrentPage] = useState(1);
+  
   useEffect(() => {
     localStorage.setItem('adminTab', activeTab);
   }, [activeTab]);
@@ -89,6 +92,16 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     }
   }, [activeTab, isSidebarOpen, reservations]);
   
+  useEffect(() => {
+    const RESERVATIONS_PER_PAGE = 10;
+    const totalPages = Math.ceil(reservations.length / RESERVATIONS_PER_PAGE);
+    // If the current page is greater than the total number of pages (e.g., after deleting items),
+    // go to the last available page.
+    if (totalPages > 0 && reservationsCurrentPage > totalPages) {
+        setReservationsCurrentPage(totalPages);
+    }
+  }, [reservations, reservationsCurrentPage]);
+
   const handleContentChange = (section: keyof SiteContent, field: string, value: string) => {
     setSiteContent(prev => {
         if (!prev) return null;
@@ -422,53 +435,82 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                      </div>
                 </div>
             );
-        case 'reservas':
-             return (
+        case 'reservas': {
+            const RESERVATIONS_PER_PAGE = 10;
+            const totalPages = Math.ceil(reservations.length / RESERVATIONS_PER_PAGE);
+            const startIndex = (reservationsCurrentPage - 1) * RESERVATIONS_PER_PAGE;
+            const paginatedReservations = reservations.slice(startIndex, startIndex + RESERVATIONS_PER_PAGE);
+
+            return (
                 <div>
                     <h2 className="text-2xl font-bold mb-4">Gerenciar Reservas</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {reservations.map(r => (
-                            <div key={r.id} className="bg-white rounded-lg shadow-md p-5 flex flex-col justify-between">
-                                <div>
-                                    <div className="flex justify-between items-start mb-3">
-                                        <p className="font-bold text-lg text-brand-brown">{r.name}</p>
-                                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(r.status)}`}>
-                                            {r.status}
-                                        </span>
+                    <div className="bg-white rounded-lg shadow-md">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+                            {paginatedReservations.map(r => (
+                                <div key={r.id} className="bg-gray-50 border border-gray-200 rounded-lg shadow-sm p-5 flex flex-col justify-between">
+                                    <div>
+                                        <div className="flex justify-between items-start mb-3">
+                                            <p className="font-bold text-lg text-brand-brown">{r.name}</p>
+                                            <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(r.status)}`}>
+                                                {r.status}
+                                            </span>
+                                        </div>
+                                        <div className="text-sm text-gray-600 space-y-2">
+                                            <p className="flex items-center">
+                                                <i data-lucide="calendar" className="w-4 h-4 mr-2 text-gray-400"></i>
+                                                {new Date(r.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
+                                            </p>
+                                            <p className="flex items-center">
+                                                <i data-lucide="clock" className="w-4 h-4 mr-2 text-gray-400"></i>
+                                                {r.time}
+                                            </p>
+                                            <p className="flex items-center">
+                                                <i data-lucide="users" className="w-4 h-4 mr-2 text-gray-400"></i>
+                                                {String(r.guests)} {Number(r.guests) > 1 ? 'pessoas' : 'pessoa'}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div className="text-sm text-gray-600 space-y-2">
-                                        <p className="flex items-center">
-                                            <i data-lucide="calendar" className="w-4 h-4 mr-2 text-gray-400"></i>
-                                            {new Date(r.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
-                                        </p>
-                                        <p className="flex items-center">
-                                            <i data-lucide="clock" className="w-4 h-4 mr-2 text-gray-400"></i>
-                                            {r.time}
-                                        </p>
-                                        <p className="flex items-center">
-                                            <i data-lucide="users" className="w-4 h-4 mr-2 text-gray-400"></i>
-                                            {String(r.guests)} {Number(r.guests) > 1 ? 'pessoas' : 'pessoa'}
-                                        </p>
+                                    <div className="mt-4 pt-4 border-t border-gray-200 flex items-center justify-end space-x-2">
+                                        <button onClick={() => handleReservationDetails(r)} className="text-sm text-indigo-600 hover:text-indigo-900 font-medium">Detalhes</button>
+                                        {r.status === 'Pendente' && (
+                                            <button onClick={() => handleReservationStatusChange(r.id, 'Confirmada')} className="px-3 py-1 bg-green-600 text-white rounded-md text-sm hover:bg-green-700">
+                                                Confirmar
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
-                                <div className="mt-4 pt-4 border-t border-gray-200 flex items-center justify-end space-x-2">
-                                    <button onClick={() => handleReservationDetails(r)} className="text-sm text-indigo-600 hover:text-indigo-900 font-medium">Detalhes</button>
-                                    {r.status === 'Pendente' && (
-                                        <button onClick={() => handleReservationStatusChange(r.id, 'Confirmada')} className="px-3 py-1 bg-green-600 text-white rounded-md text-sm hover:bg-green-700">
-                                            Confirmar
-                                        </button>
-                                    )}
-                                </div>
+                            ))}
+                        </div>
+                        {reservations.length === 0 && (
+                            <div className="p-8 text-center text-gray-500">
+                                <p>Nenhuma reserva encontrada.</p>
                             </div>
-                        ))}
+                        )}
                     </div>
-                    {reservations.length === 0 && (
-                        <div className="bg-white rounded-lg shadow-md p-8 text-center text-gray-500">
-                            <p>Nenhuma reserva encontrada.</p>
+                    {totalPages > 1 && (
+                        <div className="mt-6 flex justify-between items-center bg-white p-4 rounded-lg shadow-md">
+                            <button
+                                onClick={() => setReservationsCurrentPage(p => Math.max(p - 1, 1))}
+                                disabled={reservationsCurrentPage === 1}
+                                className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                            >
+                                Anterior
+                            </button>
+                            <span className="text-sm text-gray-700">
+                                Página <span className="font-medium">{reservationsCurrentPage}</span> de <span className="font-medium">{totalPages}</span>
+                            </span>
+                            <button
+                                onClick={() => setReservationsCurrentPage(p => Math.min(p + 1, totalPages))}
+                                disabled={reservationsCurrentPage === totalPages}
+                                className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                            >
+                                Próxima
+                            </button>
                         </div>
                     )}
                 </div>
             );
+        }
          case 'contatos':
             return (
                  <div>
