@@ -8,107 +8,102 @@ interface ReservationsProps {
 }
 
 const Reservations: React.FC<ReservationsProps> = ({ content }) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    date: '',
-    time: '',
-    guests: 1,
-  });
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        phone: '',
+        date: '',
+        time: '',
+        guests: '1',
     });
-  };
+    const [isSubmitted, setIsSubmitted] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    
-    if (!formData.name || !formData.email || !formData.date || !formData.time) {
-      setError('Por favor, preencha todos os campos obrigatórios.');
-      return;
-    }
-    
-    setIsSubmitting(true);
-    try {
-      await addDoc(collection(db, 'reservations'), {
-        ...formData,
-        guests: Number(formData.guests),
-        submittedAt: serverTimestamp(),
-      });
-      setIsSubmitted(true);
-    } catch (err) {
-      console.error("Error submitting reservation:", err);
-      setError('Ocorreu um erro ao enviar sua reserva. Tente novamente.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
-  if (isSubmitted) {
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!formData.name || !formData.email || !formData.date || !formData.time || !formData.guests) {
+            setError('Por favor, preencha todos os campos obrigatórios.');
+            return;
+        }
+        setIsSubmitting(true);
+        setError('');
+        try {
+            await addDoc(collection(db, 'reservations'), {
+                ...formData,
+                guests: parseInt(formData.guests, 10),
+                submittedAt: serverTimestamp(),
+                status: 'pending',
+            });
+            setIsSubmitted(true);
+        } catch (err) {
+            console.error(err);
+            setError('Falha ao enviar reserva. Tente novamente.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     return (
-      <section id="reservas" className="py-20 bg-gray-50">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl font-serif font-bold text-brand-brown sm:text-4xl">Obrigado!</h2>
-            <p className="mt-4 text-lg text-gray-600">
-                Sua solicitação de reserva para {formData.guests} pessoa(s) no dia {new Date(formData.date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})} às {formData.time} foi recebida. Entraremos em contato em breve para confirmar.
-            </p>
-        </div>
-      </section>
-    );
-  }
+        <section id="reservas" className="py-20 bg-white">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="max-w-3xl mx-auto text-center">
+                    <h2 className="text-3xl font-serif font-bold text-brand-brown sm:text-4xl">{content.title}</h2>
+                    <p className="mt-4 text-lg text-gray-600">{content.paragraph}</p>
+                </div>
 
-  return (
-    <section id="reservas" className="py-20 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-serif font-bold text-brand-brown sm:text-4xl">{content.title}</h2>
-          <p className="mt-4 text-lg text-gray-600">{content.paragraph}</p>
-        </div>
-        <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="md:col-span-2">
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">Nome Completo</label>
-              <input type="text" name="name" id="name" value={formData.name} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-accent focus:ring-brand-accent sm:text-sm" required />
+                <div className="mt-12 max-w-lg mx-auto">
+                    <div className="bg-brand-cream p-8 rounded-lg shadow-lg">
+                        {isSubmitted ? (
+                            <div className="text-center">
+                                <h3 className="text-2xl font-bold text-brand-brown mb-2">Reserva Enviada!</h3>
+                                <p className="text-gray-600">Obrigado por sua reserva. Entraremos em contato para confirmar. Aguardamos sua visita!</p>
+                            </div>
+                        ) : (
+                            <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8">
+                                <div className="sm:col-span-2">
+                                    <label htmlFor="name" className="block text-sm font-medium text-gray-700">Nome Completo</label>
+                                    <input type="text" name="name" id="name" value={formData.name} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-accent focus:ring-brand-accent" required />
+                                </div>
+                                <div className="sm:col-span-2">
+                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+                                    <input type="email" name="email" id="email" value={formData.email} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-accent focus:ring-brand-accent" required />
+                                </div>
+                                <div>
+                                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Telefone (Opcional)</label>
+                                    <input type="tel" name="phone" id="phone" value={formData.phone} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-accent focus:ring-brand-accent" />
+                                </div>
+                                <div>
+                                    <label htmlFor="guests" className="block text-sm font-medium text-gray-700">Número de Pessoas</label>
+                                    <input type="number" name="guests" id="guests" min="1" max="10" value={formData.guests} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-accent focus:ring-brand-accent" required />
+                                </div>
+                                <div>
+                                    <label htmlFor="date" className="block text-sm font-medium text-gray-700">Data</label>
+                                    <input type="date" name="date" id="date" value={formData.date} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-accent focus:ring-brand-accent" required />
+                                </div>
+                                <div>
+                                    <label htmlFor="time" className="block text-sm font-medium text-gray-700">Horário</label>
+                                    <input type="time" name="time" id="time" value={formData.time} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-accent focus:ring-brand-accent" required />
+                                </div>
+                                
+                                {error && <p className="text-red-500 text-sm sm:col-span-2">{error}</p>}
+
+                                <div className="sm:col-span-2">
+                                    <button type="submit" disabled={isSubmitting} className="w-full bg-brand-accent hover:bg-opacity-90 text-white font-bold py-3 px-6 rounded-md text-lg transition duration-300 disabled:opacity-50">
+                                        {isSubmitting ? 'Enviando...' : 'Fazer Reserva'}
+                                    </button>
+                                </div>
+                            </form>
+                        )}
+                    </div>
+                </div>
             </div>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-              <input type="email" name="email" id="email" value={formData.email} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-accent focus:ring-brand-accent sm:text-sm" required />
-            </div>
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Telefone</label>
-              <input type="tel" name="phone" id="phone" value={formData.phone} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-accent focus:ring-brand-accent sm:text-sm" />
-            </div>
-            <div>
-              <label htmlFor="date" className="block text-sm font-medium text-gray-700">Data</label>
-              <input type="date" name="date" id="date" value={formData.date} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-accent focus:ring-brand-accent sm:text-sm" required />
-            </div>
-            <div>
-              <label htmlFor="time" className="block text-sm font-medium text-gray-700">Horário</label>
-              <input type="time" name="time" id="time" value={formData.time} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-accent focus:ring-brand-accent sm:text-sm" required />
-            </div>
-            <div className="md:col-span-2">
-              <label htmlFor="guests" className="block text-sm font-medium text-gray-700">Número de Pessoas</label>
-              <input type="number" name="guests" id="guests" value={formData.guests} onChange={handleChange} min="1" max="10" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-accent focus:ring-brand-accent sm:text-sm" />
-            </div>
-            {error && <p className="text-red-500 text-sm md:col-span-2">{error}</p>}
-            <div className="md:col-span-2 text-center">
-              <button type="submit" disabled={isSubmitting} className="w-full bg-brand-accent hover:bg-opacity-90 text-white font-bold py-3 px-8 rounded-md text-lg transition duration-300 disabled:opacity-50">
-                {isSubmitting ? 'Enviando...' : 'Solicitar Reserva'}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </section>
-  );
+        </section>
+    );
 };
 
 export default Reservations;
