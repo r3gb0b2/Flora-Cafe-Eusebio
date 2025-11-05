@@ -3,7 +3,7 @@ export interface MenuItem {
   name: string;
   description: string;
   price: number;
-  category: 'Cafés' | 'Salgados' | 'Doces' | 'Bebidas';
+  category: string;
   imageUrl?: string;
 }
 
@@ -23,12 +23,16 @@ export interface SiteContent {
     title: string;
     paragraph: string;
   };
+  menu: {
+    title: string;
+    description: string;
+  };
   gallery: {
     title: string;
   };
   reservations: {
-      title: string;
-      paragraph: string;
+    title: string;
+    paragraph: string;
   };
   location: {
     title: string;
