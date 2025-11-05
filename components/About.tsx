@@ -25,7 +25,7 @@ const About: React.FC<AboutProps> = ({ content }) => {
               </p>
             </div>
             <div className="order-1 md:order-2">
-              <img className="rounded-lg shadow-2xl" src="/placeholder-about.jpg" alt="Interior do Flora Café" />
+              <img className="rounded-lg shadow-2xl w-full h-full object-cover aspect-video" src={content.imageUrl} alt="Interior do Flora Café" />
             </div>
           </div>
         </div>

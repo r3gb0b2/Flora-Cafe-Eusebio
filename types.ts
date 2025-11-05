@@ -1,8 +1,9 @@
-// Fix: Create the content for types.ts to define the data structures used in the application.
+// types.ts
 export interface Photo {
   id: string;
   url: string;
   alt: string;
+  storagePath?: string; // To track file in Firebase Storage for deletion
 }
 
 export interface MenuItem {
@@ -12,6 +13,7 @@ export interface MenuItem {
   price: number;
   category: string;
   imageUrl?: string;
+  storagePath?: string; // To track file in Firebase Storage for deletion
 }
 
 export interface MenuCategory {
@@ -43,10 +45,13 @@ export interface SiteContent {
     title: string;
     subtitle: string;
     imageUrl: string;
+    storagePath?: string;
   };
   about: {
     title: string;
     paragraph: string;
+    imageUrl: string;
+    storagePath?: string;
   };
   gallery: {
     title: string;
