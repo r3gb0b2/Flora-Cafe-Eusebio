@@ -28,7 +28,7 @@ const Reservations: React.FC<ReservationsProps> = ({ content }) => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!formData.name || !formData.email || !formData.date || !formData.time || !formData.guests) {
+        if (!formData.name || !formData.email || !formData.phone || !formData.date || !formData.time || !formData.guests) {
             setError('Por favor, preencha todos os campos obrigatórios.');
             return;
         }
@@ -76,8 +76,8 @@ const Reservations: React.FC<ReservationsProps> = ({ content }) => {
                                     <input type="email" name="email" id="email" value={formData.email} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-accent focus:ring-brand-accent" required />
                                 </div>
                                  <div>
-                                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Telefone</label>
-                                    <input type="tel" name="phone" id="phone" value={formData.phone} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-accent focus:ring-brand-accent" />
+                                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Telefone/Whatsapp</label>
+                                    <input type="tel" name="phone" id="phone" value={formData.phone} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-accent focus:ring-brand-accent" required />
                                 </div>
                                 <div>
                                     <label htmlFor="date" className="block text-sm font-medium text-gray-700">Data</label>

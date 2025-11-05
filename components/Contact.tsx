@@ -39,6 +39,9 @@ const Contact: React.FC<ContactProps> = ({ content }) => {
         }
     };
 
+    // Create WhatsApp URL from phone number, assuming Brazilian country code 55
+    const whatsappUrl = `https://wa.me/55${content.phone.replace(/\D/g, '')}`;
+
     return (
         <section id="contato" className="py-20 bg-gray-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -51,9 +54,9 @@ const Contact: React.FC<ContactProps> = ({ content }) => {
                     {/* Contact Info */}
                     <div className="space-y-8">
                         <div className="text-center">
-                            <i data-lucide="phone" className="w-10 h-10 text-brand-accent mx-auto mb-3"></i>
-                            <h3 className="text-lg font-semibold text-brand-brown">Telefone</h3>
-                            <a href={`tel:${content.phone}`} className="text-gray-600 hover:text-brand-accent">{content.phone}</a>
+                            <i data-lucide="message-circle" className="w-10 h-10 text-brand-accent mx-auto mb-3"></i>
+                            <h3 className="text-lg font-semibold text-brand-brown">WhatsApp</h3>
+                            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-brand-accent">{content.phone}</a>
                         </div>
                         <div className="text-center">
                             <i data-lucide="mail" className="w-10 h-10 text-brand-accent mx-auto mb-3"></i>
@@ -68,6 +71,9 @@ const Contact: React.FC<ContactProps> = ({ content }) => {
                                 </a>
                                 <a href={content.facebookUrl} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-brand-accent">
                                     <i data-lucide="facebook" className="w-8 h-8"></i>
+                                </a>
+                                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-brand-accent">
+                                    <i data-lucide="message-circle" className="w-8 h-8"></i>
                                 </a>
                             </div>
                         </div>
