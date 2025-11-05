@@ -1,7 +1,11 @@
-
 import React, { useState } from 'react';
+import { SiteContent } from '../types';
 
-const Reservations: React.FC = () => {
+interface ReservationsProps {
+  content: SiteContent['reservations'];
+}
+
+const Reservations: React.FC<ReservationsProps> = ({ content }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -50,8 +54,8 @@ const Reservations: React.FC = () => {
     <section id="reservas" className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-serif font-bold text-brand-brown sm:text-4xl">Faça sua Reserva</h2>
-          <p className="mt-4 text-lg text-gray-600">Garanta seu lugar em nosso café.</p>
+          <h2 className="text-3xl font-serif font-bold text-brand-brown sm:text-4xl">{content.title}</h2>
+          <p className="mt-4 text-lg text-gray-600">{content.paragraph}</p>
         </div>
         <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
