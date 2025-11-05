@@ -54,6 +54,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   const [activeTab, setActiveTab] = useState<AdminTab>(() => (localStorage.getItem('adminTab') as AdminTab) || 'dashboard');
   const [siteContent, setSiteContent] = useState<SiteContent | null>(initialSiteContent);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   // States for modals and forms
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
@@ -82,11 +83,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   }, [initialSiteContent]);
 
   useEffect(() => {
-    // Re-render icons when tab changes
+    // Re-render icons when tab changes or sidebar opens
     if (window.lucide) {
       window.lucide.createIcons();
     }
-  }, [activeTab]);
+  }, [activeTab, isSidebarOpen]);
   
   const handleContentChange = (section: keyof SiteContent, field: string, value: string) => {
     setSiteContent(prev => {
@@ -250,7 +251,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
       const resRef = doc(db, 'reservations', selectedReservation.id);
       await updateDoc(resRef, { adminNotes });
       setSelectedReservation(prev => prev ? {...prev, adminNotes} : null);
-      setIsReservationModalOpen(false);
+      // Don't close modal, let user close it.
   };
 
   // Contact Handlers
@@ -357,11 +358,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                 <div>
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-2xl font-bold">Gerenciar Cardápio</h2>
-                        <button onClick={() => openMenuModal()} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Adicionar Item</button>
+                        <button onClick={() => openMenuModal()} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex-shrink-0">Adicionar Item</button>
                     </div>
                     <div className="bg-white shadow rounded-lg overflow-hidden">
                         {menuItems.map(item => (
-                            <div key={item.id} className="p-4 border-b flex items-center justify-between">
+                            <div key={item.id} className="p-4 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                                 <div className="flex items-center">
                                     <img src={item.imageUrl || '/placeholder-espresso.jpg'} alt={item.name} className="w-16 h-16 object-cover rounded mr-4"/>
                                     <div>
@@ -369,7 +370,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                                         <p className="text-sm text-gray-600">{item.category}</p>
                                     </div>
                                 </div>
-                                <div className="space-x-2">
+                                <div className="space-x-2 flex-shrink-0">
                                     <button onClick={() => openMenuModal(item)} className="px-3 py-1 bg-yellow-500 text-white rounded text-sm">Editar</button>
                                     <button onClick={() => handleMenuDelete(item)} className="px-3 py-1 bg-red-600 text-white rounded text-sm">Apagar</button>
                                 </div>
@@ -385,7 +386,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                      <form onSubmit={handleCategorySubmit} className="mb-4 bg-white p-4 rounded shadow flex gap-4">
                          <input type="text" value={newCategoryName} onChange={e => setNewCategoryName(e.target.value)} placeholder="Nome da Categoria" className="flex-grow rounded-md border-gray-300 shadow-sm"/>
                          <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">{editingCategory ? 'Atualizar' : 'Adicionar'}</button>
-                         {editingCategory && <button onClick={() => { setEditingCategory(null); setNewCategoryName(''); }} className="px-4 py-2 bg-gray-300 rounded">Cancelar</button>}
+                         {editingCategory && <button type="button" onClick={() => { setEditingCategory(null); setNewCategoryName(''); }} className="px-4 py-2 bg-gray-300 rounded">Cancelar</button>}
                      </form>
                       <div className="bg-white shadow rounded-lg overflow-hidden">
                          {menuCategories.map(cat => (
@@ -465,12 +466,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                     <div className="space-y-4">
                         {contactSubmissions.map(s => (
                             <div key={s.id} className="bg-white p-4 rounded-lg shadow">
-                                <div className="flex justify-between items-center">
-                                    <div>
+                                <div className="flex justify-between items-start">
+                                    <div className="flex-1">
                                         <p className="font-semibold">{s.name} <span className="text-gray-500 font-normal">&lt;{s.email}&gt;</span></p>
                                         <p className="text-sm text-gray-500">{s.submittedAt?.toDate().toLocaleString('pt-BR')}</p>
                                     </div>
-                                    <button onClick={() => handleContactDelete(s.id)} className="text-red-500 hover:text-red-700">
+                                    <button onClick={() => handleContactDelete(s.id)} className="text-red-500 hover:text-red-700 ml-2 flex-shrink-0">
                                         <i data-lucide="trash-2" className="w-5 h-5"></i>
                                     </button>
                                 </div>
@@ -487,7 +488,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
   const NavItem: React.FC<{tab: AdminTab, label: string, icon: string}> = ({tab, label, icon}) => (
     <button 
-        onClick={() => setActiveTab(tab)}
+        onClick={() => { setActiveTab(tab); setIsSidebarOpen(false); }}
         className={`flex items-center px-4 py-2 text-sm font-medium rounded-md w-full text-left transition-colors ${activeTab === tab ? 'bg-brand-accent text-white' : 'text-gray-600 hover:bg-gray-200'}`}
     >
         <i data-lucide={icon} className="w-5 h-5 mr-3"></i>
@@ -497,11 +498,28 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
   return (
     <>
-    <div className="min-h-screen bg-gray-100 flex">
-        <aside className="w-64 bg-white shadow-md p-4 flex flex-col flex-shrink-0">
-            <div className="flex items-center mb-8">
-                <i data-lucide="leaf" className="w-8 h-8 mr-2 text-brand-accent"></i>
-                <h1 className="text-xl font-bold text-brand-brown">Admin Flora Café</h1>
+    <div className="relative min-h-screen md:flex bg-gray-100">
+        {/* Mobile Header */}
+        <header className="bg-white text-gray-800 flex justify-between items-center md:hidden sticky top-0 z-20 shadow-md">
+            <div className="flex items-center p-4">
+                <i data-lucide="leaf" className="w-6 h-6 mr-2 text-brand-accent"></i>
+                <span className="text-lg font-bold text-brand-brown">Admin Flora Café</span>
+            </div>
+            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-4 focus:outline-none focus:bg-gray-200" aria-label="Open menu">
+                <i data-lucide="menu" className="h-6 w-6"></i>
+            </button>
+        </header>
+
+        {/* Sidebar */}
+        <aside className={`bg-white w-64 p-4 flex flex-col flex-shrink-0 fixed inset-y-0 left-0 transform md:relative md:translate-x-0 transition-transform duration-300 ease-in-out z-40 shadow-lg md:shadow-md ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+            <div className="flex justify-between items-center mb-8">
+                <div className="flex items-center">
+                    <i data-lucide="leaf" className="w-8 h-8 mr-2 text-brand-accent"></i>
+                    <h1 className="text-xl font-bold text-brand-brown">Admin Flora Café</h1>
+                </div>
+                <button onClick={() => setIsSidebarOpen(false)} className="md:hidden p-1 rounded-full hover:bg-gray-200" aria-label="Close menu">
+                    <i data-lucide="x" className="w-5 h-5"></i>
+                </button>
             </div>
             <nav className="flex flex-col space-y-2">
                 <NavItem tab="dashboard" label="Dashboard" icon="layout-dashboard" />
@@ -523,14 +541,19 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                 </button>
             </div>
         </aside>
-        <main className="flex-1 p-8 overflow-y-auto">
+
+        <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
             {renderContent()}
         </main>
+        
+        {/* Overlay for mobile */}
+        {isSidebarOpen && <div onClick={() => setIsSidebarOpen(false)} className="fixed inset-0 bg-black opacity-50 z-30 md:hidden"></div>}
+
     </div>
 
     {/* Menu Item Modal */}
     {isMenuModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-lg">
                 <h3 className="text-xl font-bold mb-4">{editingMenuItem ? 'Editar' : 'Adicionar'} Item do Cardápio</h3>
                 <form onSubmit={handleMenuSubmit} className="space-y-4">
@@ -557,7 +580,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
     {/* Reservation Details Modal */}
     {isReservationModalOpen && selectedReservation && (
-         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-lg">
                 <h3 className="text-xl font-bold mb-4">Detalhes da Reserva</h3>
                 <div className="space-y-2 text-gray-700">
@@ -572,11 +595,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                     <label className="block text-sm font-medium">Notas Administrativas</label>
                     <textarea value={adminNotes} onChange={e => setAdminNotes(e.target.value)} className="mt-1 w-full rounded border-gray-300" rows={3}></textarea>
                 </div>
-                 <div className="mt-4 flex justify-between items-center">
+                 <div className="mt-4 flex flex-wrap gap-2 justify-between items-center">
                     <div>
                         <span className={`px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(selectedReservation.status)}`}>{selectedReservation.status}</span>
                     </div>
-                    <div className="space-x-2">
+                    <div className="flex flex-wrap gap-2">
                         <button onClick={() => handleReservationStatusChange(selectedReservation.id, 'Confirmada')} className="px-3 py-1 text-sm bg-green-500 text-white rounded">Confirmar</button>
                         <button onClick={() => handleReservationStatusChange(selectedReservation.id, 'Cancelada')} className="px-3 py-1 text-sm bg-red-500 text-white rounded">Cancelar</button>
                         <button onClick={() => handleReservationStatusChange(selectedReservation.id, 'Concluída')} className="px-3 py-1 text-sm bg-blue-500 text-white rounded">Concluir</button>

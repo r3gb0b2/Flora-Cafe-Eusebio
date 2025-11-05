@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { SiteContent, Reservation } from '../types';
 import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -21,6 +21,7 @@ const Reservations: React.FC<ReservationsProps> = ({ content }) => {
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
+    const formContainerRef = useRef<HTMLDivElement>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -50,6 +51,12 @@ const Reservations: React.FC<ReservationsProps> = ({ content }) => {
         }
     };
 
+    useEffect(() => {
+        if (isSubmitted && formContainerRef.current) {
+            formContainerRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, [isSubmitted]);
+
     return (
         <section id="reservas" className="py-20 bg-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -59,7 +66,7 @@ const Reservations: React.FC<ReservationsProps> = ({ content }) => {
                 </div>
 
                 <div className="mt-12 max-w-lg mx-auto">
-                    <div className="bg-brand-cream p-8 rounded-lg shadow-lg">
+                    <div ref={formContainerRef} className="bg-brand-cream p-8 rounded-lg shadow-lg" style={{ scrollMarginTop: '100px' }}>
                         {isSubmitted ? (
                             <div className="text-center">
                                 <h3 className="text-2xl font-bold text-brand-brown mb-2">Reserva Enviada!</h3>
