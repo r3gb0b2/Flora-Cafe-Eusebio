@@ -3,7 +3,7 @@ import { auth, db, storage } from '../firebase';
 import { signOut } from 'firebase/auth';
 import { doc, setDoc, addDoc, updateDoc, deleteDoc, collection } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
-import { SiteContent, MenuItem, Photo, MenuCategory } from '../types';
+import { SiteContent, MenuItem, Photo, MenuCategory, Reservation, ContactSubmission } from '../types';
 import { GoogleGenAI } from '@google/genai';
 
 interface AdminPanelProps {
@@ -12,9 +12,19 @@ interface AdminPanelProps {
   menuItems: MenuItem[];
   photos: Photo[];
   menuCategories: MenuCategory[];
+  reservations: Reservation[];
+  contactSubmissions: ContactSubmission[];
 }
 
-const AdminPanel: React.FC<AdminPanelProps> = ({ setView, siteContent: initialContent, menuItems, photos, menuCategories }) => {
+const AdminPanel: React.FC<AdminPanelProps> = ({ 
+  setView, 
+  siteContent: initialContent, 
+  menuItems, 
+  photos, 
+  menuCategories,
+  reservations,
+  contactSubmissions
+}) => {
   const [siteContent, setSiteContent] = useState<SiteContent | null>(initialContent);
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('general');
@@ -37,13 +47,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ setView, siteContent: initialCo
 
   const handleContentChange = (section: keyof SiteContent, field: string, value: any) => {
     if (!siteContent) return;
-    setSiteContent({
-      ...siteContent,
-      [section]: {
-        ...siteContent[section as keyof SiteContent],
-        [field]: value,
-      },
-    });
+    // Create a deep copy to avoid direct state mutation
+    const newContent = JSON.parse(JSON.stringify(siteContent));
+    newContent[section][field] = value;
+    setSiteContent(newContent);
   };
 
   const handleFileUpload = async (file: File) => {
@@ -195,6 +202,18 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ setView, siteContent: initialCo
       }
   };
 
+  // --- RESERVATIONS & CONTACTS DELETION ---
+  const handleDeleteReservation = async (id: string) => {
+    if (!window.confirm("Tem certeza que deseja apagar esta reserva?")) return;
+    await deleteDoc(doc(db, "reservations", id));
+  };
+  
+  const handleDeleteContact = async (id: string) => {
+    if (!window.confirm("Tem certeza que deseja apagar esta mensagem de contato?")) return;
+    await deleteDoc(doc(db, "contactSubmissions", id));
+  };
+
+
   return (
     <div className="min-h-screen bg-gray-100 p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
@@ -213,20 +232,49 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ setView, siteContent: initialCo
               <button onClick={() => setActiveTab('menu')} className={`${activeTab === 'menu' ? 'border-brand-accent text-brand-accent' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}>Cardápio</button>
               <button onClick={() => setActiveTab('categories')} className={`${activeTab === 'categories' ? 'border-brand-accent text-brand-accent' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}>Categorias</button>
               <button onClick={() => setActiveTab('gallery')} className={`${activeTab === 'gallery' ? 'border-brand-accent text-brand-accent' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}>Galeria</button>
+              <button onClick={() => setActiveTab('reservations')} className={`${activeTab === 'reservations' ? 'border-brand-accent text-brand-accent' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}>Reservas</button>
+              <button onClick={() => setActiveTab('contacts')} className={`${activeTab === 'contacts' ? 'border-brand-accent text-brand-accent' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}>Contatos</button>
             </nav>
           </div>
 
           {activeTab === 'general' && siteContent && (
-             <div className="space-y-4">
-                <h2 className="text-xl font-semibold text-gray-700 mb-4">Conteúdo Geral</h2>
+             <div className="space-y-6">
+                <h2 className="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Conteúdo Geral e Contatos</h2>
+                 
+                 {/* Contact Section */}
                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Título Principal (Hero)</label>
-                    <input value={siteContent.hero.title} onChange={e => handleContentChange('hero', 'title', e.target.value)} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                    <label className="block text-sm font-medium text-gray-700">Telefone de Contato</label>
+                    <input value={siteContent.contact.phone} onChange={e => handleContentChange('contact', 'phone', e.target.value)} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
                 </div>
                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Subtítulo (Hero)</label>
-                    <textarea value={siteContent.hero.subtitle} onChange={e => handleContentChange('hero', 'subtitle', e.target.value)} rows={3} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                    <label className="block text-sm font-medium text-gray-700">Email de Contato</label>
+                    <input type="email" value={siteContent.contact.email} onChange={e => handleContentChange('contact', 'email', e.target.value)} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
                 </div>
+                 <div>
+                    <label className="block text-sm font-medium text-gray-700">URL do Instagram</label>
+                    <input value={siteContent.contact.instagramUrl} onChange={e => handleContentChange('contact', 'instagramUrl', e.target.value)} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                </div>
+                 <div>
+                    <label className="block text-sm font-medium text-gray-700">URL do Facebook</label>
+                    <input value={siteContent.contact.facebookUrl} onChange={e => handleContentChange('contact', 'facebookUrl', e.target.value)} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                </div>
+
+                {/* Location Section */}
+                 <div className="pt-4 border-t mt-6">
+                    <h2 className="text-xl font-semibold text-gray-700 my-4">Localização</h2>
+                    <label className="block text-sm font-medium text-gray-700">Endereço</label>
+                    <input value={siteContent.location.address} onChange={e => handleContentChange('location', 'address', e.target.value)} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Horário de Funcionamento</label>
+                    <input value={siteContent.location.hours} onChange={e => handleContentChange('location', 'hours', e.target.value)} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">URL do Iframe do Google Maps</label>
+                    <textarea value={siteContent.location.mapUrl} onChange={e => handleContentChange('location', 'mapUrl', e.target.value)} rows={4} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                </div>
+
+
                 <div className="pt-4">
                   <button onClick={saveGeneralContent} disabled={isSaving} className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50">{isSaving ? 'Salvando...' : 'Salvar Conteúdo Geral'}</button>
                 </div>
@@ -305,6 +353,56 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ setView, siteContent: initialCo
                  </div>
             </div>
           )}
+
+            {activeTab === 'reservations' && (
+                <div>
+                    <h2 className="text-xl font-semibold text-gray-700 mb-4">Gerenciar Reservas</h2>
+                    <div className="space-y-4">
+                        {reservations.length > 0 ? reservations.map(res => (
+                            <div key={res.id} className="bg-gray-50 p-4 rounded-lg border">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <p><strong>Nome:</strong> {res.name}</p>
+                                        <p><strong>Data:</strong> {new Date(res.date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})} às {res.time}</p>
+                                        <p><strong>Pessoas:</strong> {res.guests}</p>
+                                        <p><strong>Contato:</strong> {res.email} / {res.phone}</p>
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Recebido em: {new Date(res.submittedAt.seconds * 1000).toLocaleString('pt-BR')}
+                                        </p>
+                                    </div>
+                                    <button onClick={() => handleDeleteReservation(res.id)} className="text-red-500 hover:text-red-700">
+                                        <i data-lucide="trash-2" className="w-5 h-5"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        )) : <p>Nenhuma reserva encontrada.</p>}
+                    </div>
+                </div>
+            )}
+
+            {activeTab === 'contacts' && (
+                <div>
+                    <h2 className="text-xl font-semibold text-gray-700 mb-4">Mensagens de Contato</h2>
+                    <div className="space-y-4">
+                        {contactSubmissions.length > 0 ? contactSubmissions.map(sub => (
+                             <div key={sub.id} className="bg-gray-50 p-4 rounded-lg border">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <p><strong>De:</strong> {sub.name} ({sub.email})</p>
+                                        <p className="mt-2 bg-white p-2 rounded border">{sub.message}</p>
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Recebido em: {new Date(sub.submittedAt.seconds * 1000).toLocaleString('pt-BR')}
+                                        </p>
+                                    </div>
+                                    <button onClick={() => handleDeleteContact(sub.id)} className="text-red-500 hover:text-red-700">
+                                        <i data-lucide="trash-2" className="w-5 h-5"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        )) : <p>Nenhuma mensagem de contato encontrada.</p>}
+                    </div>
+                </div>
+            )}
 
         </div>
       </div>

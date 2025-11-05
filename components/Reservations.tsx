@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { SiteContent } from '../types';
+import { db } from '../firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 interface ReservationsProps {
   content: SiteContent['reservations'];
@@ -15,6 +17,7 @@ const Reservations: React.FC<ReservationsProps> = ({ content }) => {
     guests: 1,
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -24,17 +27,29 @@ const Reservations: React.FC<ReservationsProps> = ({ content }) => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    // Basic validation
+    
     if (!formData.name || !formData.email || !formData.date || !formData.time) {
       setError('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
-    console.log('Reserva enviada:', formData);
-    // Here you would typically send data to a backend or Firebase
-    setIsSubmitted(true);
+    
+    setIsSubmitting(true);
+    try {
+      await addDoc(collection(db, 'reservations'), {
+        ...formData,
+        guests: Number(formData.guests),
+        submittedAt: serverTimestamp(),
+      });
+      setIsSubmitted(true);
+    } catch (err) {
+      console.error("Error submitting reservation:", err);
+      setError('Ocorreu um erro ao enviar sua reserva. Tente novamente.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isSubmitted) {
@@ -85,8 +100,8 @@ const Reservations: React.FC<ReservationsProps> = ({ content }) => {
             </div>
             {error && <p className="text-red-500 text-sm md:col-span-2">{error}</p>}
             <div className="md:col-span-2 text-center">
-              <button type="submit" className="w-full bg-brand-accent hover:bg-opacity-90 text-white font-bold py-3 px-8 rounded-md text-lg transition duration-300">
-                Solicitar Reserva
+              <button type="submit" disabled={isSubmitting} className="w-full bg-brand-accent hover:bg-opacity-90 text-white font-bold py-3 px-8 rounded-md text-lg transition duration-300 disabled:opacity-50">
+                {isSubmitting ? 'Enviando...' : 'Solicitar Reserva'}
               </button>
             </div>
           </form>

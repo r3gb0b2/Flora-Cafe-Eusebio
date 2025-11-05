@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { db, isFirebaseConfigured, auth } from './firebase';
-import { doc, getDoc, onSnapshot, collection } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot, collection, query, orderBy } from 'firebase/firestore';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { Photo, MenuItem, SiteContent, MenuCategory } from './types';
+import { Photo, MenuItem, SiteContent, MenuCategory, Reservation, ContactSubmission } from './types';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import About from './components/About';
@@ -33,6 +33,8 @@ const App: React.FC = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [menuCategories, setMenuCategories] = useState<MenuCategory[]>([]);
+  const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [contactSubmissions, setContactSubmissions] = useState<ContactSubmission[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -40,7 +42,7 @@ const App: React.FC = () => {
     if (window.lucide) {
       window.lucide.createIcons();
     }
-  }, [view, siteContent, isLoading, user, photos, menuItems, menuCategories]);
+  }, [view, siteContent, isLoading, user, photos, menuItems, menuCategories, reservations, contactSubmissions]);
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
@@ -80,12 +82,26 @@ const App: React.FC = () => {
           setMenuCategories(cats.sort((a, b) => a.name.localeCompare(b.name)));
         });
 
+        const reservationsQuery = query(collection(db, 'reservations'), orderBy('submittedAt', 'desc'));
+        const reservationsUnsubscribe = onSnapshot(reservationsQuery, (snapshot) => {
+            const res = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Reservation));
+            setReservations(res);
+        });
+
+        const contactsQuery = query(collection(db, 'contactSubmissions'), orderBy('submittedAt', 'desc'));
+        const contactsUnsubscribe = onSnapshot(contactsQuery, (snapshot) => {
+            const subs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ContactSubmission));
+            setContactSubmissions(subs);
+        });
+
         setIsLoading(false);
         
         return () => {
           menuUnsubscribe();
           photosUnsubscribe();
           categoriesUnsubscribe();
+          reservationsUnsubscribe();
+          contactsUnsubscribe();
         };
 
       } catch (e) {
@@ -128,7 +144,15 @@ const App: React.FC = () => {
 
   if (view === 'admin') {
     if (user) {
-      return <AdminPanel setView={setView} siteContent={siteContent} menuItems={menuItems} photos={photos} menuCategories={menuCategories} />;
+      return <AdminPanel 
+        setView={setView} 
+        siteContent={siteContent} 
+        menuItems={menuItems} 
+        photos={photos} 
+        menuCategories={menuCategories} 
+        reservations={reservations}
+        contactSubmissions={contactSubmissions}
+      />;
     }
     return <Login setView={setView} />;
   }
