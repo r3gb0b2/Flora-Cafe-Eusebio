@@ -5,8 +5,6 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage
 import { SiteContent, MenuItem, Photo } from '../types';
 import { GoogleGenAI } from '@google/genai';
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
 interface AdminPanelProps {
   setView: (view: 'user' | 'admin') => void;
   siteContent: SiteContent | null;
@@ -177,12 +175,17 @@ const MenuSettings: React.FC<{ menuItems: MenuItem[] }> = ({ menuItems }) => {
   }
 
   const generateDescription = async () => {
+    if (!process.env.API_KEY) {
+        alert("A chave da API do Google GenAI não foi configurada. Esta funcionalidade está desabilitada.");
+        return;
+    }
     if (!currentItem?.name) {
         alert('Por favor, insira o nome do item.');
         return;
     }
     setIsGenerating(true);
     try {
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
         const prompt = `Crie uma descrição curta e apetitosa para um item de cardápio de cafeteria chamado "${currentItem.name}". A descrição deve ter no máximo 20 palavras e destacar o sabor e a qualidade.`;
         const response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt });
         setCurrentItem(prev => ({...prev, description: response.text}));
