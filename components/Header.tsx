@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 
 const NavLink: React.FC<{ href: string; children: React.ReactNode; onClick: () => void }> = ({ href, children, onClick }) => (
@@ -36,9 +35,13 @@ const Header: React.FC = () => {
     <header className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-brand-cream/80 backdrop-blur-sm shadow-md' : 'bg-transparent'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          <div className="flex items-center">
-            <a href="#" className="text-brand-brown font-serif text-3xl font-bold flex items-center">
-              FLORA CAFÉ
+          <div className="flex-shrink-0">
+            <a href="#" className="flex items-center">
+              <img
+                className="h-16 w-auto"
+                src="https://firebasestorage.googleapis.com/v0/b/stingressos-e0a5f.firebasestorage.app/o/IMG_4992.jpeg?alt=media&token=900a0208-6c4c-4e5b-b993-08849fc1729b"
+                alt="Flora Café Logo"
+              />
             </a>
           </div>
           <div className="hidden md:block">
