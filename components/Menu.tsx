@@ -1,32 +1,75 @@
 import React from 'react';
-import { MenuItem } from '../types';
+import { MenuItem, MenuCategory } from '../types';
 
-const MenuCard: React.FC<{ item: MenuItem }> = ({ item }) => (
-  <div className="bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300 flex flex-col">
-    <img src={item.imageUrl || '/placeholder-espresso.jpg'} alt={item.name} className="w-full h-48 object-cover" />
-    <div className="p-6 flex flex-col flex-grow">
-      <h3 className="text-xl font-serif font-semibold text-brand-brown">{item.name}</h3>
-      <p className="text-gray-600 mt-2 flex-grow">{item.description}</p>
-      <div className="mt-4 flex justify-between items-center">
-        <span className="text-lg font-bold text-brand-accent">R$ {Number(item.price).toFixed(2)}</span>
-        <span className="text-sm bg-brand-brown text-white px-2 py-1 rounded-full">{item.category}</span>
-      </div>
-    </div>
-  </div>
-);
+interface MenuProps {
+    menuItems: MenuItem[];
+    menuCategories: MenuCategory[];
+}
 
+const Menu: React.FC<MenuProps> = ({ menuItems, menuCategories }) => {
+  
+  const menuByCategory = menuCategories.map(category => ({
+    ...category,
+    items: menuItems.filter(item => item.category === category.name)
+  })).filter(category => category.items.length > 0);
 
-const Menu: React.FC<{ menuItems: MenuItem[] }> = ({ menuItems }) => {
+  // Manually order categories to match the PDF
+  const categoryOrder = [
+    'Entradas',
+    'Tapiocas',
+    'Tapiocas Doces',
+    'Cuscuz',
+    'Omeletes/Crepioca',
+    'Croissant',
+    'Croissant Doce',
+    'Sanduiches no Pão Brioche',
+    'Pães de Queijo',
+    'Panquecas',
+    'Docinhos',
+    'Adicionais',
+    'Cafés Espresso',
+    'Cafés Filtrados',
+    'Cafés ao Leite',
+    'Cafés Gelados',
+    'Frapês',
+    'Sodas',
+    'Sucos Especiais',
+    'Sucos',
+    'Chás Gelados',
+    'Água/Refrigerante',
+    'Cafés da Manhã Especiais',
+  ];
+
+  const sortedMenu = menuByCategory.sort((a, b) => {
+    return categoryOrder.indexOf(a.name) - categoryOrder.indexOf(b.name);
+  });
+
   return (
-    <section id="cardapio" className="py-20 bg-gray-50">
+    <section id="cardapio" className="py-20 bg-brand-cream">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center">
-          <h2 className="text-3xl font-serif font-bold text-brand-brown sm:text-4xl">Nosso Cardápio</h2>
-          <p className="mt-4 text-lg text-gray-600">Delícias preparadas com carinho para você.</p>
+        <div className="text-center mb-16">
+          <h2 className="text-5xl font-serif font-bold text-brand-brown sm:text-6xl">Cardápio</h2>
         </div>
-        <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {menuItems.map(item => (
-            <MenuCard key={item.id} item={item} />
+        
+        <div className="space-y-16">
+          {sortedMenu.map(category => (
+            <div key={category.id}>
+              <div className="text-center mb-8">
+                <h3 className="text-4xl font-serif font-bold text-brand-brown tracking-wide">{category.name}</h3>
+                <div className="w-24 h-px bg-brand-secondary mx-auto mt-2"></div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                {category.items.map(item => (
+                  <div key={item.id} className="flex justify-between items-start">
+                    <div className="pr-4">
+                      <p className="font-bold text-lg text-brand-brown">{item.name}</p>
+                      {item.description && <p className="text-sm text-gray-600 mt-1">{item.description}</p>}
+                    </div>
+                    <p className="font-bold text-lg text-brand-brown whitespace-nowrap">R$ {Number(item.price).toFixed(2).replace('.',',')}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       </div>

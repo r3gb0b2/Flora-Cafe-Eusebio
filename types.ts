@@ -5,8 +5,9 @@ export interface SiteContent {
   gallery: { title: string; };
   reservations: { title: string; paragraph: string; };
   location: { title: string; address: string; hours: string; mapUrl: string; };
-  contact: { title: string; paragraph: string; phone: string; email: string; instagramUrl: string; facebookUrl: string; };
+  contact: { title:string; paragraph: string; phone: string; email: string; instagramUrl: string; facebookUrl: string; };
   instagram: { title: string; username: string; ctaText: string; };
+  observations: { title: string; lines: string[]; };
 }
 
 export interface Photo {

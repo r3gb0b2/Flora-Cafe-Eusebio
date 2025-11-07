@@ -16,6 +16,7 @@ import AdminPanel from './components/AdminPanel';
 import Login from './components/Login';
 import FirebaseNotConfigured from './components/FirebaseNotConfigured';
 import InstagramFeed from './components/InstagramFeed';
+import Observations from './components/Observations';
 
 // Add type definition for window.lucide
 declare global {
@@ -164,19 +165,20 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="bg-brand-cream">
+    <div className="bg-brand-cream text-brand-brown">
       {siteContent ? (
         <>
           <Header />
           <main>
             <Hero content={siteContent.hero} />
             <About content={siteContent.about} />
-            <Menu menuItems={menuItems} />
+            <Menu menuItems={menuItems} menuCategories={menuCategories} />
             <Gallery photos={photos} content={siteContent.gallery} isLoading={false} />
             {siteContent.instagram && <InstagramFeed content={siteContent.instagram} instagramUrl={siteContent.contact.instagramUrl} />}
             <Reservations content={siteContent.reservations} />
             <Location content={siteContent.location} />
             <Contact content={siteContent.contact} />
+            <Observations content={siteContent.observations} />
           </main>
           <Footer setView={handleSetView} />
         </>
