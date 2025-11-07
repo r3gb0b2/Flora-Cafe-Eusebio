@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 
 const NavLink: React.FC<{ href: string; children: React.ReactNode; onClick: () => void }> = ({ href, children, onClick }) => (
@@ -10,82 +11,58 @@ const NavLink: React.FC<{ href: string; children: React.ReactNode; onClick: () =
   </a>
 );
 
-// Base64 encoded logo to be used directly in the src attribute
-const logoSrc = "data:image/jpeg;base64,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AAAAAAAEjH/wCHAAAAAAAAAAAAAAAAEjH/AOHAAAAAAAAAAAAAAAAEjH/wCHAAAAAAAAAAAAAAAAEjH/AOHAAAAAAAAAAAAAAAAEjH/wCHAAAAAAAAAAAAAAAAEjH/AOHAAAAAAAAAAAAAAAAEjH/wCHAAAAAAAAAAAAAAAAAAAAAEyAAAACQAAAAAAAAAAAAAAAATIAAACAABIAAAAAAAAAAAAAAAAAAEyAAAACAABIAAAAAAAAAAAAAAAAAAEyAAAACAABIAAAAAAAAAAAAAAAAAAEyAAAACAABIAAAAAAAAAAAAAAAAAAEyAAAACAABIAAAAAAAAAAAAAAAAAAEyAAAACAABIAAAAAAAAAAAAAAAAAAEyAAAACAABIAAAAAAAAAAAAAAAAAAEyAAAACAABIAAAAAAAAAAAAAAAAAAEyAAAACAABIAAAAAAAAAAAAAAAAAAEyAAAACAABIAAAAAAAAAAAAAAAAAAEyAAAACAABIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcOQAAAAAAAAAAAAAAHDkAAAAAAAAAAAAAABw5AAAAAAAAAAAAAAAcOQAAAAAAAAAAAAAARk/wAAAAAAAAAAAAAARk/wAAAAAAAAAAAAAARk/wAAAAAAAAAAAAARk/wAAAAAAAAAAAAAAAAAACc/gAAAAAAAAAAAAAAAJz+AAAAAAAAAAAAAAACc/gAAAAAAAAAAAAAAAnP4AAAAAAAAAAAAAAAJH+gAAAAAAAAAAAAAAAkf6AAAAAAAAAAAAAAACR/oAAAAAAAAAAAAAAJH+gAAAAAAAAAAAAAAAcf1AAAAAAAAAAAAAAAHH9AAAAAAAAAAAAAAAHH9AAAAAAAAAAAAAAAHH9AAAAAAAAAAAAAAAAE+gAAAAAAAAAAAAAAT6AAAAAAAAAAAAAABPoAAAAAAAAAAAAAAE+gAAAAAAAAAAAAAAkYwAAAAAAAAAAAAAAJGMAAAAAAAAAAAAAACRjAAAAAAAAAAAAAAAkYwAAAAAAAAAAAAAAI/0AAAAAAAAAAAAAAI/wBAAAAAAAAAAAAAAI/0AAAAAAAAAAAAAAI/0AAAAAAAAAAAAAAAAAP0AAAAAAAAAAAAAAAAP0AAAAAAAAAAAAAAAAP0AAAAAAAAAAAAAAAAP0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA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8/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/wDL/Nytuv8Ab/8AZc+38/8Ay/zcrbr/AG//AGXPt/P/AMv83K26/wBv/wBlz7fz/---";
-
 const Header: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-
-  // Close the menu if the window is resized to a larger screen
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 768) {
-        setIsOpen(false);
-      }
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  const closeMenu = () => setIsOpen(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const navLinks = [
-    { href: '#sobre', label: 'Sobre Nós' },
-    { href: '#cardapio', label: 'Cardápio' },
-    { href: '#fotos', label: 'Fotos' },
-    { href: '#reservas', label: 'Reservas' },
-    { href: '#localizacao', label: 'Localização' },
-    { href: '#contato', label: 'Contato' },
+    { href: '#sobre', text: 'Sobre Nós' },
+    { href: '#cardapio', text: 'Cardápio' },
+    { href: '#fotos', text: 'Fotos' },
+    { href: '#reservas', text: 'Reservas' },
+    { href: '#localizacao', text: 'Localização' },
+    { href: '#contato', text: 'Contato' },
   ];
+  
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <header className="bg-brand-cream bg-opacity-90 backdrop-blur-sm sticky top-0 z-50 shadow-md">
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <header className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-brand-cream/80 backdrop-blur-sm shadow-md' : 'bg-transparent'}`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <div className="flex items-center">
-            <a href="#hero" className="flex-shrink-0" onClick={closeMenu}>
-              <img src={logoSrc} alt="Flora Café Logo" className="h-16 w-auto" />
+            <a href="#" className="text-brand-brown font-serif text-3xl font-bold flex items-center">
+              FLORA CAFÉ
             </a>
           </div>
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
-              {navLinks.map(link => (
-                <NavLink key={link.href} href={link.href} onClick={closeMenu}>{link.label}</NavLink>
-              ))}
+              {navLinks.map(link => <NavLink key={link.href} href={link.href} onClick={() => setIsOpen(false)}>{link.text}</NavLink>)}
             </div>
           </div>
-          <div className="-mr-2 flex md:hidden">
+          <div className="md:hidden flex items-center">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              type="button"
-              className="bg-brand-cream inline-flex items-center justify-center p-2 rounded-md text-brand-brown hover:text-brand-accent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-cream focus:ring-white"
-              aria-controls="mobile-menu"
-              aria-expanded="false"
+              className="inline-flex items-center justify-center p-2 rounded-md text-brand-brown hover:text-brand-accent focus:outline-none"
+              aria-label={isOpen ? "Close menu" : "Open menu"}
             >
-              <span className="sr-only">Open main menu</span>
-              {isOpen ? (
-                <i data-lucide="x" className="block h-6 w-6" aria-hidden="true"></i>
-              ) : (
-                <i data-lucide="menu" className="block h-6 w-6" aria-hidden="true"></i>
-              )}
+              <i data-lucide={isOpen ? 'x' : 'menu'} className="w-6 h-6"></i>
             </button>
           </div>
         </div>
-      </nav>
+      </div>
 
-      {/* Mobile menu, show/hide based on menu state. */}
       {isOpen && (
-        <div className="md:hidden" id="mobile-menu">
+        <div className="md:hidden bg-brand-cream/95 backdrop-blur-sm">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             {navLinks.map(link => (
-              <a 
-                key={link.href} 
-                href={link.href} 
-                onClick={closeMenu} 
-                className="text-brand-brown hover:bg-brand-secondary hover:text-brand-accent block px-3 py-2 rounded-md text-base font-medium"
-              >
-                {link.label}
-              </a>
+                 <a key={link.href} href={link.href} onClick={() => setIsOpen(false)} className="text-brand-brown hover:text-brand-accent block px-3 py-2 rounded-md text-base font-medium">{link.text}</a>
             ))}
           </div>
         </div>
